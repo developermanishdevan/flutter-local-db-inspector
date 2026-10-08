@@ -12,6 +12,16 @@ Inspect, query and edit the local databases of your **running** Flutter app from
 
 The extension never reads database files. It talks to your app through the Dart VM service, and the app's `flutter_db_inspector` package executes every request. It uses the same protocol as the DevTools extension and the Android Studio plugin.
 
+## Install
+
+Install **Flutter DB Inspector** from the Extensions view (search `developer-manishdevan.flutter-db-inspector`), or run:
+
+```bash
+code --install-extension developer-manishdevan.flutter-db-inspector
+```
+
+It is also on [Open VSX](https://open-vsx.org/extension/developer-manishdevan/flutter-db-inspector) for Cursor, VSCodium and Windsurf.
+
 ## Setup
 
 1. Add the one package to the app (every connector is included):

@@ -284,91 +284,91 @@ packages:
       path: "../../packages/flutter_db_inspector"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_core:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_core"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_drift:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_drift"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_get_storage:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_get_storage"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_hive:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_hive"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_isar:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_isar"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_objectbox:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_objectbox"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_protocol:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_protocol"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_realm:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_realm"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_secure_storage:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_secure_storage"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_sembast:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_sembast"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_shared_preferences:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_shared_preferences"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_db_inspector_sqlite:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "../../packages/flutter_db_inspector_sqlite"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "1.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:

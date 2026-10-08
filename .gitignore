@@ -63,3 +63,5 @@ Thumbs.db
 # Installers shared from this repository are committed on purpose.
 !out-local-share-files/
 !out-local-share-files/**
+
+/MARKETING.md

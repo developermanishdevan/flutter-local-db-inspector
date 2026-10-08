@@ -35,3 +35,28 @@ FDI_FLUTTER_DEVICE=macos npm run test:integration   # also a real Flutter app, i
 npm run test:vscode      # inside a VS Code instance (set ELECTRON_RUN_AS_NODE= when launched from VS Code)
 npx vsce package --no-dependencies
 ```
+
+## Publishing
+
+The extension ID is `developer-manishdevan.flutter-db-inspector`. It is published to the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector) and [Open VSX](https://open-vsx.org/extension/developer-manishdevan/flutter-db-inspector) (used by Cursor, VSCodium, Windsurf and Gitpod).
+
+### One-time setup
+
+1. **Marketplace publisher**: sign in at <https://marketplace.visualstudio.com/manage> with a Microsoft account and create the publisher with ID **`developer-manishdevan`**, which must match `"publisher"` in `package.json`.
+2. **Marketplace token**: at <https://dev.azure.com> go to *User settings → Personal access tokens → New token*. Set *Organization* to **All accessible organizations** and *Scopes* to **Custom defined → Marketplace → Manage**. Add it as the GitHub repository secret `VSCE_PAT`.
+3. **Open VSX** (optional): sign in at <https://open-vsx.org> with GitHub, sign the Eclipse publisher agreement, create an access token, then run `npx ovsx create-namespace developer-manishdevan -p <token>` once. Add the token as the secret `OVSX_PAT`.
+
+### Release
+
+1. Bump `version` in `package.json` and add an entry to `CHANGELOG.md`.
+2. Check the package locally: `npm run package`, then install it with `code --install-extension flutter-db-inspector-<version>.vsix`.
+3. Commit, then tag and push:
+
+   ```bash
+   git tag vscode-v<version>
+   git push origin vscode-v<version>
+   ```
+
+   [`release-vscode.yml`](../.github/workflows/release-vscode.yml) checks that the tag matches `package.json`, runs the type check and unit tests, packages the `.vsix`, publishes it to both registries, and attaches it to a GitHub release. Running the workflow manually from the Actions tab only builds the `.vsix`, unless you tick *Publish*.
+
+To publish from your machine instead: `npx vsce login developer-manishdevan`, then `npm run publish:vsce`, and `OVSX_PAT=<token> npm run publish:ovsx`.

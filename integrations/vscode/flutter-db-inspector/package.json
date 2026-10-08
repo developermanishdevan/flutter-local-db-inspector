@@ -3,9 +3,18 @@
   "displayName": "Flutter DB Inspector",
   "description": "Inspect, query and edit your running Flutter app's local databases — SQLite, Drift, Isar, Hive, SharedPreferences and more — without copying database files.",
   "version": "1.0.0",
-  "publisher": "flutter-db-inspector",
+  "publisher": "developer-manishdevan",
+  "author": {
+    "name": "manishdevan",
+    "email": "developermanishdevan@gmail.com"
+  },
   "license": "MIT",
+  "pricing": "Free",
   "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#0D1B2A",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -22,7 +31,11 @@
     "hive",
     "isar",
     "database",
-    "inspector"
+    "inspector",
+    "sqflite",
+    "shared_preferences",
+    "objectbox",
+    "devtools"
   ],
   "repository": {
     "type": "git",
@@ -32,6 +45,7 @@
   "bugs": {
     "url": "https://github.com/developermanishdevan/flutter-local-db-inspector/issues"
   },
+  "qna": "https://github.com/developermanishdevan/flutter-local-db-inspector/issues",
   "extensionKind": [
     "workspace"
   ],
@@ -61,6 +75,7 @@
         {
           "id": "flutterDbInspector.queries",
           "name": "Queries",
+          "icon": "media/activity.svg",
           "visibility": "collapsed"
         }
       ]
@@ -499,7 +514,9 @@
     "test": "npm run typecheck && npm run test:unit && npm run test:integration",
     "package": "npm run build -- --production && vsce package --no-dependencies",
     "vscode:prepublish": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && node esbuild.mjs --production",
-    "test:vscode": "npm run build && npm run compile-tests && node out/test/vscode/runTest.js"
+    "test:vscode": "npm run build && npm run compile-tests && node out/test/vscode/runTest.js",
+    "publish:vsce": "vsce publish --no-dependencies",
+    "publish:ovsx": "npx --yes ovsx@0.10.6 publish --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",

@@ -28,7 +28,7 @@ let server: DemoServer;
 let api: FlutterDbInspectorApi;
 
 it('activates and contributes its commands', async () => {
-  const ext = vscode.extensions.getExtension<FlutterDbInspectorApi>('flutter-db-inspector.flutter-db-inspector');
+  const ext = vscode.extensions.getExtension<FlutterDbInspectorApi>('developer-manishdevan.flutter-db-inspector');
   assert.ok(ext, 'extension found');
   api = await ext.activate();
   const commands = await vscode.commands.getCommands(true);
