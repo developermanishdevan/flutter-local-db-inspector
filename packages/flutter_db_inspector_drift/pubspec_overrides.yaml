@@ -1,0 +1,10 @@
+# Local development only: resolve the other Flutter DB Inspector packages
+# from this repository. Ignored when the package is published or used
+# as a dependency.
+dependency_overrides:
+  flutter_db_inspector_core:
+    path: ../flutter_db_inspector_core
+  flutter_db_inspector_protocol:
+    path: ../flutter_db_inspector_protocol
+  flutter_db_inspector_sqlite:
+    path: ../flutter_db_inspector_sqlite

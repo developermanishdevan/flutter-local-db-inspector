@@ -1,0 +1,26 @@
+name: flutter_db_inspector_client
+description: >-
+  Pure Dart client for Flutter DB Inspector: connects to a running app through
+  the Dart VM service, survives hot restarts and exposes the inspector
+  protocol as typed calls. Used by the DevTools extension; reusable by any
+  Dart tool.
+version: 1.0.0
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_client
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+# Local/shared builds use path dependencies between the inspector packages.
+# Before publishing to pub.dev, switch them to version constraints and
+# remove this line.
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter_db_inspector_protocol:
+    path: ../flutter_db_inspector_protocol
+  vm_service: ">=14.0.0 <16.0.0"
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
+

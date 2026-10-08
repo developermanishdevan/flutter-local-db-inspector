@@ -1,0 +1,3 @@
+# Tests share one downloaded Isar Core binary; run test files sequentially so
+# only one of them downloads it.
+concurrency: 1

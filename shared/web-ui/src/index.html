@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Standalone page for hosts other than VS Code. The host sets
+     data-theme="dark" on <html> to match its theme, and, before
+     inspector.js runs, provides its transport (see transport.ts). -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; script-src 'self'">
+    <title>Flutter DB Inspector</title>
+    <link rel="stylesheet" href="codicons/codicon.css">
+    <link rel="stylesheet" href="inspector.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="inspector.js"></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<idea-plugin>
+    <id>com.manishdevan.flutterdb</id>
+    <name>Flutter DB Inspector</name>
+    <vendor url="https://github.com/developermanishdevan/flutter-local-db-inspector">manishdevan</vendor>
+    <description><![CDATA[
+    Inspect, query and edit the local databases of your <b>running</b> Flutter app — SQLite, Drift, Floor,
+    Isar, ObjectBox, Realm, Sembast, Hive, SharedPreferences, Secure Storage and GetStorage — from Android
+    Studio or IntelliJ IDEA.
+    <ul>
+      <li>Database tree with tables, views, collections and boxes, and row counts</li>
+      <li>Data grid with server-side paging, search, filters, sorting and inline editing</li>
+      <li>Value inspector (JSON, large text, BLOB hex and save to file)</li>
+      <li>Schema view, SQL console with write confirmation, query history and saved queries</li>
+      <li>Statistics and export to JSON, CSV or SQL</li>
+      <li>Reconnects automatically after hot restart</li>
+    </ul>
+    The plugin never reads database files: it talks to the app's <code>flutter_db_inspector</code> package
+    through the Dart VM service.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Flutter DB" anchor="bottom" icon="/icons/flutterDb.svg"
+                    factoryClass="com.manishdevan.flutterdb.toolwindow.FlutterDbToolWindowFactory"/>
+        <notificationGroup id="Flutter DB Inspector" displayType="BALLOON"/>
+        <applicationConfigurable parentId="tools" id="com.manishdevan.flutterdb.settings"
+                                 displayName="Flutter DB Inspector"
+                                 instance="com.manishdevan.flutterdb.service.InspectorConfigurable"/>
+    </extensions>
+
+    <projectListeners>
+        <!-- ExecutionManager.EXECUTION_TOPIC: watch run consoles for VM service URIs. -->
+        <listener class="com.manishdevan.flutterdb.connection.RunConsoleDiscovery"
+                  topic="com.intellij.execution.ExecutionListener"/>
+    </projectListeners>
+
+    <actions>
+        <action id="FlutterDbInspector.OpenInspector" class="com.manishdevan.flutterdb.actions.OpenInspectorAction"
+                text="Open Inspector" description="Show the Flutter DB tool window"/>
+        <action id="FlutterDbInspector.Connect" class="com.manishdevan.flutterdb.actions.ConnectAction"
+                text="Connect to VM Service URI…" description="Attach to a running Flutter or Dart app"/>
+        <action id="FlutterDbInspector.Refresh" class="com.manishdevan.flutterdb.actions.RefreshAction"
+                text="Refresh" description="Reload databases and open views"/>
+        <action id="FlutterDbInspector.SqlConsole" class="com.manishdevan.flutterdb.actions.OpenSqlConsoleAction"
+                text="SQL Console" description="Open a SQL console for a database"/>
+        <action id="FlutterDbInspector.Disconnect" class="com.manishdevan.flutterdb.actions.DisconnectAction"
+                text="Disconnect" description="Disconnect from the app"/>
+
+        <group id="FlutterDbInspector.ToolsMenu" text="Flutter DB Inspector" popup="true">
+            <reference ref="FlutterDbInspector.OpenInspector"/>
+            <reference ref="FlutterDbInspector.Refresh"/>
+            <reference ref="FlutterDbInspector.Disconnect"/>
+            <reference ref="FlutterDbInspector.Connect"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+
+        <group id="FlutterDbInspector.Toolbar">
+            <reference ref="FlutterDbInspector.Connect"/>
+            <reference ref="FlutterDbInspector.Refresh"/>
+            <reference ref="FlutterDbInspector.SqlConsole"/>
+            <reference ref="FlutterDbInspector.Disconnect"/>
+        </group>
+    </actions>
+</idea-plugin>

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "out",
+    "sourceMap": true,
+    "types": [
+      "node",
+      "vscode"
+    ]
+  },
+  "include": [
+    "test/**/*.ts"
+  ]
+}

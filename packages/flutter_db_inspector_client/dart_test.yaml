@@ -1,0 +1,6 @@
+tags:
+  # Runs the real demo server (`flutter_db_inspector_sqlite/example`) in a
+  # Dart VM. Needs it resolved (`dart pub get` in flutter_db_inspector_sqlite).
+  # Exclude with `dart test -x e2e`.
+  e2e:
+    timeout: 4x

@@ -1,0 +1,27 @@
+name: flutter_db_inspector_isar
+description: >-
+  Isar (isar_community) adapter for Flutter DB Inspector. Browse, filter, sort
+  and edit Isar collections without per-collection code.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_isar
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - isar
+  - database
+  - nosql
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter_db_inspector_core: ^1.0.0
+  isar_community: ^3.3.2
+
+dev_dependencies:
+  build_runner: ^2.4.0
+  isar_community_generator: ^3.3.2
+  lints: ^6.0.0
+  test: ^1.25.0
+

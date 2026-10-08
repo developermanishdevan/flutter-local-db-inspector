@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Dart / Flutter
+# ---------------------------------------------------------------------------
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.g.dart.tmp
+migrate_working_dir/
+
+# Libraries don't commit lock files; the example app does.
+pubspec.lock
+!examples/**/pubspec.lock
+
+# Prebuilt DevTools extension shipped inside the runtime package (must be
+# committed: pub.dev publishes it from here).
+!packages/flutter_db_inspector/extension/devtools/build/
+
+# Generated copy of shared/web-ui/dist (tool/sync_web_ui.sh).
+packages/flutter_db_inspector_devtools/web/web_ui/
+
+# ---------------------------------------------------------------------------
+# Node (shared/web-ui, VS Code extension)
+# ---------------------------------------------------------------------------
+node_modules/
+out/
+dist/
+*.vsix
+.vscode-test/
+npm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Gradle / Kotlin (Android Studio plugin)
+# ---------------------------------------------------------------------------
+.gradle/
+.kotlin/
+.intellijPlatform/
+local.properties
+
+# ---------------------------------------------------------------------------
+# IDEs and OS
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+/.vscode/
+.history/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Secrets and logs
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.log
+
+# Installers shared from this repository are committed on purpose.
+!out-local-share-files/
+!out-local-share-files/**

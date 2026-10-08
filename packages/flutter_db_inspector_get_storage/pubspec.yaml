@@ -1,0 +1,31 @@
+name: flutter_db_inspector_get_storage
+description: >-
+  GetStorage adapter for Flutter DB Inspector. Inspect and edit GetStorage
+  containers while your app runs.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_get_storage
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - get-storage
+  - storage
+  - key-value
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_db_inspector_core: ^1.0.0
+  get_storage: ^2.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+  path_provider_platform_interface: ^2.1.0
+  plugin_platform_interface: ^2.1.0
+

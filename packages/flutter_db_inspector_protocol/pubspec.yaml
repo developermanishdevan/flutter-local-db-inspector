@@ -1,0 +1,19 @@
+name: flutter_db_inspector_protocol
+description: >-
+  Wire protocol (requests, responses, models and value encoding) shared by the
+  Flutter DB Inspector runtime and all of its clients.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_protocol
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - database
+  - devtools
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0

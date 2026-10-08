@@ -1,0 +1,5 @@
+name: flutter_db_inspector
+issueTracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+version: 1.0.0
+materialIconCodePoint: '0xe609'
+requiresConnection: true

@@ -1,0 +1,25 @@
+name: flutter_db_inspector_core
+description: >-
+  Runtime core of Flutter DB Inspector: DbInspector, registry, router, VM
+  service extension and the generic SQL, document and key-value engines.
+  Apps normally depend on `flutter_db_inspector`, which includes this.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_core
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - database
+  - devtools
+  - debugging
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter_db_inspector_protocol: ^1.0.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
+  vm_service: ^15.0.0

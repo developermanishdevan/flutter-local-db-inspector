@@ -1,0 +1,221 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Superseded PR runs are cancelled; runs on main always finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  dart-packages:
+    name: Dart · ${{ matrix.package }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        package:
+          - flutter_db_inspector_protocol
+          - flutter_db_inspector_core
+          - flutter_db_inspector_sqlite
+          - flutter_db_inspector_drift
+          - flutter_db_inspector_sembast
+          - flutter_db_inspector_hive
+          - flutter_db_inspector_client
+          - flutter_db_inspector_isar
+          - flutter_db_inspector_objectbox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.11.4
+      # The runner image normally ships libsqlite3-dev; only hit apt (whose
+      # Azure mirror sometimes hangs) when libsqlite3.so is really missing.
+      - name: Install SQLite
+        timeout-minutes: 5
+        run: |
+          if ldconfig -p | grep -q 'libsqlite3\.so '; then
+            echo "libsqlite3.so already installed"
+            exit 0
+          fi
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev \
+            || { sudo apt-get $APT_OPTS update && sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev; }
+      - name: Resolve demo server (client e2e tests)
+        working-directory: packages/flutter_db_inspector_sqlite
+        run: dart pub get
+      - name: Resolve package
+        working-directory: packages/${{ matrix.package }}
+        run: dart pub get
+      - name: Format
+        working-directory: packages/${{ matrix.package }}
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze
+        working-directory: packages/${{ matrix.package }}
+        run: dart analyze --fatal-infos
+      - name: Test
+        working-directory: packages/${{ matrix.package }}
+        run: dart test
+
+  realm:
+    name: Dart · flutter_db_inspector_realm
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.11.4
+      - working-directory: packages/flutter_db_inspector_realm
+        run: |
+          dart pub get
+          dart run realm_dart install
+          dart format --output=none --set-exit-if-changed lib test
+          dart analyze --fatal-infos
+          dart test
+
+  flutter-packages:
+    name: Flutter · ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - flutter_db_inspector_shared_preferences
+          - flutter_db_inspector_secure_storage
+          - flutter_db_inspector_get_storage
+          - flutter_db_inspector_devtools
+          - flutter_db_inspector
+          - ../examples/sqlite_example
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.6
+      - working-directory: packages/${{ matrix.package }}
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib $( [ -d test ] && echo test )
+          flutter analyze --fatal-infos
+          if [ -d test ]; then flutter test; fi
+          if [ "${{ matrix.package }}" = flutter_db_inspector_devtools ]; then
+            dart run devtools_extensions validate --package=../flutter_db_inspector
+          fi
+
+  web-ui:
+    name: Shared web UI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shared/web-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: shared/web-ui/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Build standalone UI (Android Studio / DevTools hosts)
+        run: npm run build:production
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flutter-db-inspector-web-ui
+          path: shared/web-ui/dist/
+
+  vscode:
+    name: VS Code extension
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integrations/vscode/flutter-db-inspector
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/vscode/flutter-db-inspector/package-lock.json
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.11.4
+      # The runner image normally ships libsqlite3-dev; only hit apt (whose
+      # Azure mirror sometimes hangs) when libsqlite3.so is really missing.
+      - name: Install SQLite
+        timeout-minutes: 5
+        run: |
+          if ldconfig -p | grep -q 'libsqlite3\.so '; then
+            echo "libsqlite3.so already installed"
+            exit 0
+          fi
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev \
+            || { sudo apt-get $APT_OPTS update && sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev; }
+      - name: Resolve demo server (integration tests)
+        working-directory: packages/flutter_db_inspector_sqlite
+        run: dart pub get
+      - name: Install shared web UI dependencies
+        working-directory: shared/web-ui
+        run: npm ci
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test:unit
+      - name: Integration tests (real Dart VM)
+        run: npm run test:integration
+      - name: VS Code end-to-end tests
+        run: xvfb-run -a npm run test:vscode
+      - name: Package
+        run: npx vsce package --no-dependencies
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flutter-db-inspector-vsix
+          path: integrations/vscode/flutter-db-inspector/*.vsix
+
+  android-studio:
+    name: Android Studio / IntelliJ plugin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integrations/android-studio/flutter-db-inspector
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.11.4
+      # The runner image normally ships libsqlite3-dev; only hit apt (whose
+      # Azure mirror sometimes hangs) when libsqlite3.so is really missing.
+      - name: Install SQLite
+        timeout-minutes: 5
+        run: |
+          if ldconfig -p | grep -q 'libsqlite3\.so '; then
+            echo "libsqlite3.so already installed"
+            exit 0
+          fi
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev \
+            || { sudo apt-get $APT_OPTS update && sudo apt-get $APT_OPTS install -y --no-install-recommends libsqlite3-dev; }
+      - name: Resolve demo server (integration tests)
+        working-directory: packages/flutter_db_inspector_sqlite
+        run: dart pub get
+      # The plugin bundles the shared web UI (built by Gradle's buildWebUi task).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: shared/web-ui/package-lock.json
+      - name: Build, test and verify the plugin
+        run: ./gradlew --no-daemon build buildPlugin verifyPluginProjectConfiguration
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flutter-db-inspector-intellij-plugin
+          path: integrations/android-studio/flutter-db-inspector/build/distributions/*.zip

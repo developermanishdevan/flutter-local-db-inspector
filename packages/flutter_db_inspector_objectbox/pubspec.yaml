@@ -1,0 +1,28 @@
+name: flutter_db_inspector_objectbox
+description: >-
+  ObjectBox adapter for Flutter DB Inspector. Browse, filter, sort and edit
+  ObjectBox boxes through small typed bindings.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_objectbox
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - objectbox
+  - database
+  - nosql
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter_db_inspector_core: ^1.0.0
+  objectbox: ^5.0.0
+
+dev_dependencies:
+  build_runner: ^2.4.0
+  flat_buffers: ^25.9.23
+  lints: ^6.0.0
+  objectbox_generator: ^5.0.0
+  test: ^1.25.0
+

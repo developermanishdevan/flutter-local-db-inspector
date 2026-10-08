@@ -1,0 +1,517 @@
+{
+  "name": "flutter-db-inspector",
+  "displayName": "Flutter DB Inspector",
+  "description": "Inspect, query and edit your running Flutter app's local databases — SQLite, Drift, Isar, Hive, SharedPreferences and more — without copying database files.",
+  "version": "1.0.0",
+  "publisher": "flutter-db-inspector",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "flutter",
+    "dart",
+    "sqlite",
+    "drift",
+    "hive",
+    "isar",
+    "database",
+    "inspector"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/developermanishdevan/flutter-local-db-inspector"
+  },
+  "homepage": "https://github.com/developermanishdevan/flutter-local-db-inspector#readme",
+  "bugs": {
+    "url": "https://github.com/developermanishdevan/flutter-local-db-inspector/issues"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onDebugResolve:dart",
+    "workspaceContains:**/pubspec.yaml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "flutterDbInspector",
+          "title": "Flutter DB",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "flutterDbInspector": [
+        {
+          "id": "flutterDbInspector.databases",
+          "name": "Databases",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Flutter DB Inspector"
+        },
+        {
+          "id": "flutterDbInspector.queries",
+          "name": "Queries",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "flutterDbInspector.databases",
+        "contents": "No Flutter app is connected.\n\nRun your app in debug mode (with `DbInspector.initialize()` in `main`) and it will connect automatically.\n\n[Connect to VM Service URI…](command:flutterDbInspector.connect)\n\n[Getting started](https://github.com/developermanishdevan/flutter-local-db-inspector/blob/main/docs/getting_started.md)",
+        "when": "!flutterDbInspector.connected"
+      },
+      {
+        "view": "flutterDbInspector.databases",
+        "contents": "Connected, but the app has not registered any database yet.\n\nCall `DbInspector.registerDatabase(...)` after opening your database.",
+        "when": "flutterDbInspector.connected && flutterDbInspector.noDatabases"
+      },
+      {
+        "view": "flutterDbInspector.queries",
+        "contents": "Queries you run in the SQL console appear here."
+      }
+    ],
+    "commands": [
+      {
+        "command": "flutterDbInspector.openInspector",
+        "title": "Open Inspector",
+        "category": "Flutter DB",
+        "icon": "$(database)"
+      },
+      {
+        "command": "flutterDbInspector.refresh",
+        "title": "Refresh",
+        "category": "Flutter DB",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "flutterDbInspector.connect",
+        "title": "Connect to VM Service URI…",
+        "category": "Flutter DB",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "flutterDbInspector.disconnect",
+        "title": "Disconnect",
+        "category": "Flutter DB",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "flutterDbInspector.runQuery",
+        "title": "Run Query",
+        "category": "Flutter DB",
+        "icon": "$(play)"
+      },
+      {
+        "command": "flutterDbInspector.openSqlConsole",
+        "title": "Open SQL Console",
+        "category": "Flutter DB",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "flutterDbInspector.openTable",
+        "title": "Open Data",
+        "category": "Flutter DB",
+        "icon": "$(table)"
+      },
+      {
+        "command": "flutterDbInspector.openSchema",
+        "title": "Open Schema",
+        "category": "Flutter DB",
+        "icon": "$(symbol-structure)"
+      },
+      {
+        "command": "flutterDbInspector.exportTable",
+        "title": "Export…",
+        "category": "Flutter DB",
+        "icon": "$(export)"
+      },
+      {
+        "command": "flutterDbInspector.exportDatabase",
+        "title": "Export Database",
+        "category": "Flutter DB",
+        "icon": "$(export)"
+      },
+      {
+        "command": "flutterDbInspector.clearTable",
+        "title": "Clear…",
+        "category": "Flutter DB",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "flutterDbInspector.showStatistics",
+        "title": "Show Statistics",
+        "category": "Flutter DB",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "flutterDbInspector.copyName",
+        "title": "Copy Name",
+        "category": "Flutter DB"
+      },
+      {
+        "command": "flutterDbInspector.query.open",
+        "title": "Open in SQL Console",
+        "category": "Flutter DB",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "flutterDbInspector.query.run",
+        "title": "Run Again",
+        "category": "Flutter DB",
+        "icon": "$(play)"
+      },
+      {
+        "command": "flutterDbInspector.query.copy",
+        "title": "Copy SQL",
+        "category": "Flutter DB",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "flutterDbInspector.query.save",
+        "title": "Save Query…",
+        "category": "Flutter DB",
+        "icon": "$(star-empty)"
+      },
+      {
+        "command": "flutterDbInspector.query.delete",
+        "title": "Delete",
+        "category": "Flutter DB",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "flutterDbInspector.query.clearHistory",
+        "title": "Clear History",
+        "category": "Flutter DB",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "flutterDbInspector.goToTable",
+        "title": "Go to Table…",
+        "category": "Flutter DB",
+        "icon": "$(search)"
+      },
+      {
+        "command": "flutterDbInspector.filterTables",
+        "title": "Filter Tables…",
+        "category": "Flutter DB",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "flutterDbInspector.clearFilter",
+        "title": "Clear Table Filter",
+        "category": "Flutter DB",
+        "icon": "$(filter-filled)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "flutterDbInspector.openTable",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.openSchema",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.exportTable",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.clearTable",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.copyName",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.query.open",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.query.run",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.query.copy",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.query.save",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.query.delete",
+          "when": "false"
+        },
+        {
+          "command": "flutterDbInspector.refresh",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.disconnect",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.runQuery",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.openSqlConsole",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.exportDatabase",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.showStatistics",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.goToTable",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.filterTables",
+          "when": "flutterDbInspector.connected"
+        },
+        {
+          "command": "flutterDbInspector.clearFilter",
+          "when": "flutterDbInspector.treeFiltered"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "flutterDbInspector.goToTable",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.connected",
+          "group": "navigation@0"
+        },
+        {
+          "command": "flutterDbInspector.filterTables",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.connected && !flutterDbInspector.treeFiltered",
+          "group": "navigation@0"
+        },
+        {
+          "command": "flutterDbInspector.clearFilter",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.treeFiltered",
+          "group": "navigation@0"
+        },
+        {
+          "command": "flutterDbInspector.refresh",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.connected",
+          "group": "navigation@1"
+        },
+        {
+          "command": "flutterDbInspector.openSqlConsole",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.connected",
+          "group": "navigation@2"
+        },
+        {
+          "command": "flutterDbInspector.connect",
+          "when": "view == flutterDbInspector.databases",
+          "group": "navigation@3"
+        },
+        {
+          "command": "flutterDbInspector.disconnect",
+          "when": "view == flutterDbInspector.databases && flutterDbInspector.connected",
+          "group": "navigation@4"
+        },
+        {
+          "command": "flutterDbInspector.query.clearHistory",
+          "when": "view == flutterDbInspector.queries",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "flutterDbInspector.openTable",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^entity/",
+          "group": "inline@1"
+        },
+        {
+          "command": "flutterDbInspector.openTable",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^entity/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "flutterDbInspector.openSchema",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^entity/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "flutterDbInspector.exportTable",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^entity.*:export/",
+          "group": "2_data@1"
+        },
+        {
+          "command": "flutterDbInspector.clearTable",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^entity.*:clear/",
+          "group": "2_data@9"
+        },
+        {
+          "command": "flutterDbInspector.copyName",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^(entity|index|trigger)/",
+          "group": "9_copy"
+        },
+        {
+          "command": "flutterDbInspector.openSqlConsole",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^database.*:sql/",
+          "group": "inline@1"
+        },
+        {
+          "command": "flutterDbInspector.openSqlConsole",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^database.*:sql/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "flutterDbInspector.showStatistics",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^database/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "flutterDbInspector.exportDatabase",
+          "when": "view == flutterDbInspector.databases && viewItem =~ /^database.*:export/",
+          "group": "2_data@1"
+        },
+        {
+          "command": "flutterDbInspector.query.run",
+          "when": "view == flutterDbInspector.queries && viewItem =~ /^query/",
+          "group": "inline@1"
+        },
+        {
+          "command": "flutterDbInspector.query.save",
+          "when": "view == flutterDbInspector.queries && viewItem == query.history",
+          "group": "inline@2"
+        },
+        {
+          "command": "flutterDbInspector.query.open",
+          "when": "view == flutterDbInspector.queries && viewItem =~ /^query/",
+          "group": "1@1"
+        },
+        {
+          "command": "flutterDbInspector.query.run",
+          "when": "view == flutterDbInspector.queries && viewItem =~ /^query/",
+          "group": "1@2"
+        },
+        {
+          "command": "flutterDbInspector.query.copy",
+          "when": "view == flutterDbInspector.queries && viewItem =~ /^query/",
+          "group": "2@1"
+        },
+        {
+          "command": "flutterDbInspector.query.save",
+          "when": "view == flutterDbInspector.queries && viewItem == query.history",
+          "group": "2@2"
+        },
+        {
+          "command": "flutterDbInspector.query.delete",
+          "when": "view == flutterDbInspector.queries && viewItem =~ /^query/",
+          "group": "3@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "flutterDbInspector.runQuery",
+          "when": "editorLangId == sql && flutterDbInspector.connected",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "flutterDbInspector.runQuery",
+          "when": "editorLangId == sql && flutterDbInspector.connected",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "flutterDbInspector.runQuery",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == sql && flutterDbInspector.connected"
+      },
+      {
+        "command": "flutterDbInspector.goToTable",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "flutterDbInspector.connected && focusedView == flutterDbInspector.databases"
+      }
+    ],
+    "configuration": {
+      "title": "Flutter DB Inspector",
+      "properties": {
+        "flutterDbInspector.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Connect automatically to Flutter/Dart debug sessions."
+        },
+        "flutterDbInspector.defaultPageSize": {
+          "type": "number",
+          "enum": [
+            25,
+            50,
+            100
+          ],
+          "default": 50,
+          "description": "Rows per page in the data grid (the app caps pages at 100 rows)."
+        },
+        "flutterDbInspector.requestTimeoutMs": {
+          "type": "number",
+          "default": 30000,
+          "minimum": 1000,
+          "description": "How long the extension waits for the app to answer a request."
+        },
+        "flutterDbInspector.historyLimit": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "Number of SQL console queries kept in history (stored in VS Code, never in the app)."
+        },
+        "flutterDbInspector.confirmCellEdits": {
+          "type": "boolean",
+          "default": false,
+          "description": "Ask for confirmation before saving an edited cell. Deleting rows and clearing tables always asks."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc -p . --noEmit && tsc -p ../../../shared/web-ui --noEmit",
+    "compile-tests": "tsc -p tsconfig.test.json",
+    "test:unit": "npm run compile-tests && node --test \"out/test/unit/**/*.test.js\"",
+    "test:integration": "npm run compile-tests && node --test --test-timeout=240000 \"out/test/integration/**/*.test.js\"",
+    "test": "npm run typecheck && npm run test:unit && npm run test:integration",
+    "package": "npm run build -- --production && vsce package --no-dependencies",
+    "vscode:prepublish": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && node esbuild.mjs --production",
+    "test:vscode": "npm run build && npm run compile-tests && node out/test/vscode/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.90.0",
+    "@types/ws": "^8.18.2",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.46-24",
+    "ws": "^8.22.0"
+  }
+}

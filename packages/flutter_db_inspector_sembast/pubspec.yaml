@@ -1,0 +1,25 @@
+name: flutter_db_inspector_sembast
+description: >-
+  Sembast adapter for Flutter DB Inspector. Browse, filter, sort and edit
+  Sembast stores (int or String keyed, map or scalar records).
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_sembast
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - sembast
+  - database
+  - nosql
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter_db_inspector_core: ^1.0.0
+  sembast: ^3.8.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
+

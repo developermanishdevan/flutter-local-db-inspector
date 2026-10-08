@@ -1,0 +1,28 @@
+# Local development only: resolve the other Flutter DB Inspector packages
+# from this repository. Ignored when the package is published or used
+# as a dependency.
+dependency_overrides:
+  flutter_db_inspector_core:
+    path: ../flutter_db_inspector_core
+  flutter_db_inspector_drift:
+    path: ../flutter_db_inspector_drift
+  flutter_db_inspector_get_storage:
+    path: ../flutter_db_inspector_get_storage
+  flutter_db_inspector_hive:
+    path: ../flutter_db_inspector_hive
+  flutter_db_inspector_isar:
+    path: ../flutter_db_inspector_isar
+  flutter_db_inspector_objectbox:
+    path: ../flutter_db_inspector_objectbox
+  flutter_db_inspector_protocol:
+    path: ../flutter_db_inspector_protocol
+  flutter_db_inspector_realm:
+    path: ../flutter_db_inspector_realm
+  flutter_db_inspector_secure_storage:
+    path: ../flutter_db_inspector_secure_storage
+  flutter_db_inspector_sembast:
+    path: ../flutter_db_inspector_sembast
+  flutter_db_inspector_shared_preferences:
+    path: ../flutter_db_inspector_shared_preferences
+  flutter_db_inspector_sqlite:
+    path: ../flutter_db_inspector_sqlite

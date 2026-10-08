@@ -1,0 +1,47 @@
+name: flutter_db_inspector
+description: >-
+  Inspect, query and edit your Flutter app's local databases (SQLite, sqflite,
+  Drift, Isar, ObjectBox, Realm, Sembast, Hive, SharedPreferences, Secure
+  Storage, GetStorage) from DevTools, VS Code and Android Studio while it runs.
+  One package: every connector is included.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - database
+  - sqlite
+  - devtools
+  - debugging
+  - inspector
+
+screenshots:
+  - description: Flutter DB Inspector logo
+    path: doc/logo.jpg
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.1"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector_sqlite: ^1.0.0
+  flutter_db_inspector_drift: ^1.0.0
+  flutter_db_inspector_isar: ^1.0.0
+  flutter_db_inspector_objectbox: ^1.0.0
+  flutter_db_inspector_realm: ^1.0.0
+  flutter_db_inspector_sembast: ^1.0.0
+  flutter_db_inspector_hive: ^1.0.0
+  flutter_db_inspector_shared_preferences: ^1.0.0
+  flutter_db_inspector_secure_storage: ^1.0.0
+  flutter_db_inspector_get_storage: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+  sembast: ^3.8.0
+  shared_preferences: ^2.3.0
+

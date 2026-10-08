@@ -1,0 +1,30 @@
+name: flutter_db_inspector_shared_preferences
+description: >-
+  SharedPreferences adapter for Flutter DB Inspector. Inspect and edit
+  preferences (legacy, async and cached APIs) while your app runs.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_shared_preferences
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - shared-preferences
+  - storage
+  - key-value
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_db_inspector_core: ^1.0.0
+  shared_preferences: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+  shared_preferences_platform_interface: ^2.4.0
+

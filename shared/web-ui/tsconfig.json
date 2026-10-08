@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "types": [],
+    // The TypeScript protocol client, exporter, query store and labels live in
+    // the VS Code extension, which also runs them on Node; the UI bundles these
+    // browser-safe modules through the aliases below.
+    "paths": {
+      "@protocol/*": ["../../integrations/vscode/flutter-db-inspector/src/protocol/*"],
+      "@messages": ["../../integrations/vscode/flutter-db-inspector/src/panels/messages.ts"],
+      "@services/*": ["../../integrations/vscode/flutter-db-inspector/src/services/*"],
+      "@labels": ["../../integrations/vscode/flutter-db-inspector/src/providers/labels.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

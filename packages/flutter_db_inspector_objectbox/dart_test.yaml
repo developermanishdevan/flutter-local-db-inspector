@@ -1,0 +1,4 @@
+tags:
+  # Needs the ObjectBox native library, downloaded on the first run into
+  # .dart_tool/objectbox (network required). Exclude with `dart test -x native`.
+  native:

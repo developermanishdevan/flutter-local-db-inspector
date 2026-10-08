@@ -1,0 +1,30 @@
+name: flutter_db_inspector_devtools
+description: >-
+  DevTools extension for Flutter DB Inspector (Flutter web app). Built into
+  packages/flutter_db_inspector/extension/devtools; not published on its own.
+publish_to: none
+version: 1.0.0
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_devtools
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.1"
+
+dependencies:
+  devtools_app_shared: ^0.5.1
+  devtools_extensions: ^0.5.1
+  flutter:
+    sdk: flutter
+  flutter_db_inspector_client:
+    path: ../flutter_db_inspector_client
+  vm_service: ">=14.0.0 <16.0.0"
+  web: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

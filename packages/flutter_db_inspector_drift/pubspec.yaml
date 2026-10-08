@@ -1,0 +1,29 @@
+name: flutter_db_inspector_drift
+description: >-
+  Drift (formerly Moor) adapter for Flutter DB Inspector. Browse, query and
+  edit Drift databases; edits refresh the app's watch() streams.
+version: 1.0.0
+homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
+repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_drift
+issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
+topics:
+  - drift
+  - sqlite
+  - database
+  - inspector
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  drift: ^2.28.0
+  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector_sqlite: ^1.0.0
+
+dev_dependencies:
+  async: ^2.13.1
+  build_runner: ^2.16.2
+  drift_dev: ^2.35.1
+  lints: ^6.0.0
+  test: ^1.25.0
+
