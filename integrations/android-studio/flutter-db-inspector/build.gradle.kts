@@ -133,6 +133,9 @@ if (!skipWebUi) {
     sourceSets.main { resources.srcDir(buildWebUi.flatMap { it.outputDir }) }
 }
 
+/** An environment variable, treated as unset when empty (GitHub passes missing secrets as ""). */
+fun env(name: String) = providers.environmentVariable(name).filter { it.isNotBlank() }
+
 intellijPlatform {
     // Both start a headless IDE or need extra tooling; this plugin has no
     // settings to index and no GUI forms to instrument.
@@ -144,6 +147,10 @@ intellijPlatform {
         name = "Flutter DB Inspector"
         version = project.version.toString()
         changeNotes = """
+            <b>1.0.1</b>
+            <ul>
+              <li>Fixed: the web UI could fail to load in IntelliJ-based IDEs 2026.2 and newer, whose JCEF adds new resource-handler methods.</li>
+            </ul>
             <b>1.0.0</b>
             <ul>
               <li>New web UI (JCEF), the same as in VS Code and DevTools: database tree, tabs, data grid, value inspector, schema, SQL console with history and saved queries, statistics.</li>
@@ -159,12 +166,28 @@ intellijPlatform {
         }
     }
 
+    // JetBrains Marketplace (see docs/android_studio.md#publishing). Signing is
+    // optional: signPlugin is skipped when CERTIFICATE_CHAIN is not set.
+    signing {
+        certificateChain = env("CERTIFICATE_CHAIN")
+        privateKey = env("PRIVATE_KEY")
+        password = env("PRIVATE_KEY_PASSWORD")
+    }
+
+    publishing {
+        token = env("PUBLISH_TOKEN")
+    }
+
     pluginVerification {
         ides {
             val locals = listOf("/Applications/Android Studio.app", "/Applications/IntelliJ IDEA CE.app")
                 .map(::file)
                 .filter { it.exists() }
             if (locals.isEmpty()) recommended() else locals.forEach { local(it) }
+            // Extra IDEs to download and check, e.g. -PverifyIdes=IU-2026.2.3,IC-2025.1.3
+            providers.gradleProperty("verifyIdes").orNull
+                ?.split(',')?.map(String::trim)?.filter(String::isNotEmpty)
+                ?.forEach { create(it.substringBefore('-'), it.substringAfter('-')) }
         }
     }
 }

@@ -62,8 +62,8 @@ Run the app in debug mode, then use any of:
 - **DevTools:** open the **flutter_db_inspector** tab. The extension ships in
   this package, so there is nothing else to install. Enable it the first time
   DevTools asks.
-- **VS Code:** the **Flutter DB** view.
-- **Android Studio / IntelliJ:** the **Flutter DB** tool window.
+- **VS Code:** the **Flutter DB** view ([install the extension](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector)).
+- **Android Studio / IntelliJ:** the **Flutter DB** tool window ([install the plugin](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector)).
 
 ## Features
 

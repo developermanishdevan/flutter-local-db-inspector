@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.manishdevan.flutterdb</id>
     <name>Flutter DB Inspector</name>
-    <vendor url="https://github.com/developermanishdevan/flutter-local-db-inspector">manishdevan</vendor>
+    <vendor url="https://github.com/developermanishdevan/flutter-local-db-inspector" email="developermanishdevan@gmail.com">manishdevan</vendor>
     <description><![CDATA[
     Inspect, query and edit the local databases of your <b>running</b> Flutter app — SQLite, Drift, Floor,
     Isar, ObjectBox, Realm, Sembast, Hive, SharedPreferences, Secure Storage and GetStorage — from Android

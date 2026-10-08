@@ -6,14 +6,16 @@ Source: [`integrations/android-studio/flutter-db-inspector`](../integrations/and
 
 ## Install
 
-1. Build the plugin zip (or download the `flutter-db-inspector-intellij` artifact from CI):
+In Android Studio or IntelliJ IDEA, open **Settings ▸ Plugins ▸ Marketplace**, search for **Flutter DB Inspector**, click **Install** and restart if asked. The plugin page is <https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector>.
 
-   ```bash
-   cd integrations/android-studio/flutter-db-inspector
-   ./gradlew buildPlugin        # → build/distributions/flutter-db-inspector-1.0.0.zip
-   ```
+To install a build from source instead (or the `flutter-db-inspector-intellij-plugin` artifact from CI):
 
-2. In the IDE, open **Settings ▸ Plugins ▸ ⚙ ▸ Install Plugin from Disk…**, pick the zip, and restart if asked.
+```bash
+cd integrations/android-studio/flutter-db-inspector
+./gradlew buildPlugin        # → build/distributions/flutter-db-inspector-<version>.zip
+```
+
+Then use **Settings ▸ Plugins ▸ ⚙ ▸ Install Plugin from Disk…**, pick the zip, and restart if asked.
 
 The plugin depends only on `com.intellij.modules.platform`. It doesn't need the Flutter or Dart plugins.
 
@@ -101,6 +103,7 @@ cd integrations/android-studio/flutter-db-inspector
 ./gradlew buildPlugin                      # build/distributions/*.zip
 ./gradlew verifyPluginProjectConfiguration
 ./gradlew verifyPlugin                     # Plugin Verifier against the local IDEs (see build.gradle.kts)
+./gradlew verifyPlugin -PverifyIdes=IU-2026.2.3   # also download and check other IDE versions
 ./gradlew runIde                           # sandbox IDE with the plugin
 ```
 
@@ -111,3 +114,47 @@ cd integrations/android-studio/flutter-db-inspector
   - `ConnectionManager` tests against a scripted VM: hot restart, Sentinel answers, timeouts, version mismatch, disabled inspector.
   - A light platform test (`BasePlatformTestCase`) that the tool window, actions and services register.
   - `DemoServerIntegrationTest`, which spawns the Dart demo server and drives the real `VmServiceClient`. It covers list, schema, rows with search and sort, masked values, editing, the SQL write-confirmation path, `value.read` of the 2 MB blob, export, hot restart reconnect and stop. It's skipped when `dart` isn't on `PATH`.
+
+## Publishing
+
+The plugin ID is `com.manishdevan.flutterdb` (vendor `manishdevan`), published on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector). Android Studio installs plugins from the same marketplace.
+
+### First release (by hand)
+
+Marketplace accepts updates through its API only after the plugin exists, so upload 1.0.0 on the website:
+
+1. Build the zip against the since-build platform, so it runs on every IDE it claims (251+):
+
+   ```bash
+   ./gradlew -PplatformLocalPath= clean buildPlugin verifyPlugin
+   ```
+
+   `-PplatformLocalPath=` builds against IntelliJ IDEA Community `platformVersion` instead of the local Android Studio. The result is `build/distributions/flutter-db-inspector-<version>.zip`.
+2. Sign in at <https://plugins.jetbrains.com> with a JetBrains Account and accept the developer agreement.
+3. Open <https://plugins.jetbrains.com/plugin/add>, upload the zip, pick the **MIT** license, the **Tools Integration** (or **Database**) tag, and `https://github.com/developermanishdevan/flutter-local-db-inspector` as the source code URL.
+4. JetBrains reviews new plugins by hand, which usually takes a few working days. You get an email when it is approved.
+
+### Later releases
+
+1. Create a Marketplace token: profile ▸ **My Tokens** ▸ **Generate Token**. Add it as the GitHub repository secret `PUBLISH_TOKEN`.
+2. Bump `pluginVersion` in `gradle.properties` and add the version to `changeNotes` in `build.gradle.kts`.
+3. Commit, then tag and push:
+
+   ```bash
+   git tag android-studio-v<version>
+   git push origin android-studio-v<version>
+   ```
+
+   [`release-android-studio.yml`](../.github/workflows/release-android-studio.yml) checks that the tag matches `pluginVersion`, builds against IntelliJ IDEA Community 2025.1.3, publishes with `publishPlugin`, and attaches the zip to a GitHub release. Running it manually from the Actions tab only builds the zip, unless you tick *Publish*.
+
+To publish from your machine instead: `PUBLISH_TOKEN=<token> ./gradlew -PplatformLocalPath= publishPlugin`.
+
+### Signing (optional)
+
+Marketplace signs every plugin itself, so this is not required. To also sign with your own certificate, generate one and add the three values as secrets (`CERTIFICATE_CHAIN`, `PRIVATE_KEY`, `PRIVATE_KEY_PASSWORD`, each the full PEM text). `signPlugin` is skipped when they are not set.
+
+```bash
+openssl genpkey -aes-256-cbc -algorithm RSA -out private_encrypted.pem -pkeyopt rsa_keygen_bits:4096
+openssl rsa -in private_encrypted.pem -out private.pem
+openssl req -key private.pem -new -x509 -days 3650 -out chain.crt
+```

@@ -7,6 +7,7 @@ import org.cef.callback.CefCallback
 import org.cef.handler.CefLifeSpanHandlerAdapter
 import org.cef.handler.CefRequestHandlerAdapter
 import org.cef.handler.CefResourceHandler
+import org.cef.handler.CefResourceHandlerAdapter
 import org.cef.handler.CefResourceRequestHandler
 import org.cef.handler.CefResourceRequestHandlerAdapter
 import org.cef.misc.BoolRef
@@ -60,8 +61,15 @@ class WebUiRequestHandler(private val theme: () -> String) : CefRequestHandlerAd
     }
 }
 
-/** Answers one request with [resource], or 404 when it is null. */
-private class BytesResourceHandler(private val resource: WebUiResources.Resource?) : CefResourceHandler {
+/**
+ * Answers one request with [resource], or 404 when it is null.
+ *
+ * Extends [CefResourceHandlerAdapter] rather than implementing
+ * [CefResourceHandler]: newer JCEF (2026.2+) adds abstract `open`/`read`/`skip`
+ * to the interface, and the adapter implements them by falling back to
+ * `processRequest`/`readResponse`, which are the only methods 2025.1 has.
+ */
+private class BytesResourceHandler(private val resource: WebUiResources.Resource?) : CefResourceHandlerAdapter() {
     private var offset = 0
 
     override fun processRequest(request: CefRequest, callback: CefCallback): Boolean {

@@ -67,7 +67,9 @@ Connected clients update as soon as a database is registered.
 
 ## 3. Open the inspector
 
-**VS Code:** install the *Flutter DB Inspector* extension and run the app with F5. The **Flutter DB** view in the activity bar connects automatically. If the app was started from a terminal (`flutter run`), use **Flutter DB: Connect to VM Service URI…** and paste the URI that `flutter run` prints.
+**VS Code:** install the [*Flutter DB Inspector* extension](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector) and run the app with F5. The **Flutter DB** view in the activity bar connects automatically. If the app was started from a terminal (`flutter run`), use **Flutter DB: Connect to VM Service URI…** and paste the URI that `flutter run` prints.
+
+**Android Studio / IntelliJ:** install the [*Flutter DB Inspector* plugin](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector) (**Settings ▸ Plugins ▸ Marketplace**) and run the app. The **Flutter DB** tool window connects automatically. For an app started from a terminal, use **Tools ▸ Flutter DB Inspector ▸ Connect to VM Service URI…**.
 
 After a hot restart, the inspector reconnects and reloads by itself.
 

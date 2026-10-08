@@ -2,6 +2,10 @@
 
 # Flutter DB Inspector
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/developer-manishdevan.flutter-db-inspector?label=VS%20Code%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector)
+[![JetBrains Marketplace](https://img.shields.io/jetbrains/plugin/v/34899?label=JetBrains%20Marketplace&logo=jetbrains)](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 > The database inspector built specifically for Flutter developers.
 
 Inspect, query, edit and export your Flutter app's local storage **while the app runs**. No need to find database files on a device, copy them off, or open them in a separate SQLite browser.
@@ -19,6 +23,14 @@ The inspector doesn't assume everything is a SQL table. Each adapter reports its
 | **relational** | SQLite, sqflite, sqflite_common_ffi, Floor, **Drift** | tables & views · rows | SQL console |
 | **document** | **Isar**, **ObjectBox**, **Realm**, **Sembast** | collections · objects | filter / sort / search |
 | **keyValue** | **Hive**, **SharedPreferences**, **Secure Storage**, GetStorage | boxes · entries | filter / sort / search |
+
+## Install the IDE tools
+
+| IDE | Install |
+|---|---|
+| **VS Code** | [Flutter DB Inspector on the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector), or `code --install-extension developer-manishdevan.flutter-db-inspector` |
+| **Android Studio / IntelliJ IDEA** (2025.1+) | [Flutter DB Inspector on JetBrains Marketplace](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector), or **Settings ▸ Plugins ▸ Marketplace**, search *Flutter DB Inspector* |
+| **DevTools** | Nothing to install: the extension ships inside the `flutter_db_inspector` package |
 
 ## Quick start
 
@@ -39,7 +51,7 @@ dependencies:
 >       path: packages/flutter_db_inspector
 > ```
 >
-> To build the VS Code and Android Studio installers, see [docs/vscode.md](docs/vscode.md) and [docs/android_studio.md](docs/android_studio.md).
+> To build the VS Code and Android Studio plugins from source, see [docs/vscode.md](docs/vscode.md) and [docs/android_studio.md](docs/android_studio.md).
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -92,9 +104,9 @@ Connector packages are included by `flutter_db_inspector`. Size-sensitive apps c
 
 | Client | Status |
 |---|---|
-| [VS Code extension](integrations/vscode/flutter-db-inspector) | ✅ v0.1: tree, data grid, editing, schema, SQL console, history, statistics, export |
-| [DevTools extension](docs/devtools.md) | ✅ v0.1: ships inside `flutter_db_inspector`; tree, data grid, editing, schema, SQL console with history, statistics |
-| [Android Studio / IntelliJ plugin](integrations/android-studio/flutter-db-inspector) | ✅ v0.1: *Flutter DB* tool window; run-console discovery, tree, data grid, editing, schema, SQL console with history, statistics, export ([docs](docs/android_studio.md)) |
+| [VS Code extension](integrations/vscode/flutter-db-inspector) · [Marketplace](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector) | ✅ 1.0: tree, data grid, editing, schema, SQL console, history, statistics, export |
+| [DevTools extension](docs/devtools.md) | ✅ 1.0: ships inside `flutter_db_inspector`; tree, data grid, editing, schema, SQL console with history, statistics |
+| [Android Studio / IntelliJ plugin](integrations/android-studio/flutter-db-inspector) · [Marketplace](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector) | ✅ 1.0: *Flutter DB* tool window; run-console discovery, tree, data grid, editing, schema, SQL console with history, statistics, export ([docs](docs/android_studio.md)) |
 
 ## Architecture in one picture
 
