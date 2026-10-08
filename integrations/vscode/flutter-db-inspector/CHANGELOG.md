@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- README: new **Set up with an AI assistant** section with a ready-to-paste prompt for Claude Code, Gemini, Copilot or Cursor. The agent finds the app's databases, adds only the needed packages, and inserts the initialization and registration code in the right places.
+- Version aligned with the Android Studio plugin.
+
 ## 1.0.0
 
 - One shared data UI: the grid, value inspector, row form, SQL console and statistics are the same in VS Code, Android Studio and DevTools.

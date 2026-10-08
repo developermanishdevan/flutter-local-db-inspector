@@ -16,6 +16,11 @@
     </ul>
     The plugin never reads database files: it talks to the app's <code>flutter_db_inspector</code> package
     through the Dart VM service.
+    <p>
+    <b>Quick setup:</b> paste the ready-made prompt from
+    <a href="https://github.com/developermanishdevan/flutter-local-db-inspector#set-up-with-an-ai-assistant">Set up with an AI assistant</a>
+    into Claude Code, Gemini, Copilot or Cursor, and it adds the inspector to your app for you.
+    </p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

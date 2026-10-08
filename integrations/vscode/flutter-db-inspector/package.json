@@ -2,7 +2,7 @@
   "name": "flutter-db-inspector",
   "displayName": "Flutter DB Inspector",
   "description": "Inspect, query and edit your running Flutter app's local databases — SQLite, Drift, Isar, Hive, SharedPreferences and more — without copying database files.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "publisher": "developer-manishdevan",
   "author": {
     "name": "manishdevan",

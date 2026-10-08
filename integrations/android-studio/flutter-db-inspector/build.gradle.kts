@@ -147,6 +147,10 @@ intellijPlatform {
         name = "Flutter DB Inspector"
         version = project.version.toString()
         changeNotes = """
+            <b>1.0.2</b>
+            <ul>
+              <li>Docs: <b>Set up with an AI assistant</b>, a ready-to-paste prompt that adds Flutter DB Inspector to your app (finds your databases, adds only the needed packages, inserts the setup code).</li>
+            </ul>
             <b>1.0.1</b>
             <ul>
               <li>Fixed: the web UI could fail to load in IntelliJ-based IDEs 2026.2 and newer, whose JCEF adds new resource-handler methods.</li>
