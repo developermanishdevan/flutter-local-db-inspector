@@ -577,59 +577,6 @@ a:hover { text-decoration: underline; color: var(--vscode-textLink-activeForegro
   background: var(--vscode-menu-separatorBackground, var(--border));
 }
 
-/* Table picker (table header "Tables" button) ---------------------------- */
-
-.title .btn { flex-shrink: 0; }
-
-.table-picker {
-  position: fixed;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 320px;
-  max-width: calc(100vw - 8px);
-  padding: 6px;
-  border: 1px solid var(--vscode-menu-border, var(--border));
-  border-radius: 4px;
-  color: var(--vscode-menu-foreground);
-  background: var(--vscode-menu-background);
-  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
-}
-
-.table-picker .input { width: 100%; box-sizing: border-box; }
-
-.table-picker-list {
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.table-picker-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 8px;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.table-picker-item.active {
-  color: var(--vscode-menu-selectionForeground);
-  background: var(--vscode-menu-selectionBackground);
-}
-
-.table-picker-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.table-picker-desc { color: var(--muted); font-size: 0.9em; white-space: nowrap; }
-.table-picker-item.active .table-picker-desc { color: inherit; opacity: 0.8; }
-.table-picker-message { padding: 6px 8px; }
-
 /* Dialog ---------------------------------------------------------------- */
 
 .dialog-backdrop {

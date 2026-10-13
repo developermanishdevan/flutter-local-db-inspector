@@ -1,9 +1,5 @@
 # Changelog
 
-## 1.0.3
-
-- Table view: new **Tables** button next to the table name. It opens a search box over the database's other tables, views, collections and boxes (with row counts); pick one to open it in a new tab. The current table stays open, and a table that is already open is brought to the front instead of opened twice.
-
 ## 1.0.2
 
 - README: new **Set up with an AI assistant** section with a ready-to-paste prompt for Claude Code, Gemini, Copilot or Cursor. The agent finds the app's databases, adds only the needed packages, and inserts the initialization and registration code in the right places.

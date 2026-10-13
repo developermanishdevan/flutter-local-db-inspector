@@ -29,7 +29,6 @@ import { DataGrid, type GridColumn } from './grid';
 import { HostError, isCancelled, type ViewHost } from './host';
 import { recordNoun } from '@labels';
 import { showRowForm } from './rowForm';
-import { showTablePicker } from './tablePicker';
 import { ValuePanel } from './valuePanel';
 
 interface PersistedState {
@@ -67,10 +66,6 @@ export class TableView {
     type: 'search',
     placeholder: 'Search',
     'aria-label': 'Search all columns',
-  });
-  private readonly switchButton = button('Tables', () => showTablePicker(this.switchButton, this.host, this.table), {
-    icon: 'search',
-    title: 'Search and open another table',
   });
   private readonly grid: DataGrid;
   private readonly valuePanel = new ValuePanel(() => this.grid.focus());
@@ -115,7 +110,6 @@ export class TableView {
         h('div', { class: 'title' }, icon(kind === 'view' ? 'eye' : kind === 'collection' ? 'symbol-class' : kind === 'box' ? 'package' : 'table'),
           h('h1', {}, this.table),
           h('span', { class: 'badge' }, kind),
-          this.switchButton,
           this.db.readOnly ? h('span', { class: 'badge warn', title: 'Writes are disabled' }, 'read-only') : null),
         this.tabs,
       ),
