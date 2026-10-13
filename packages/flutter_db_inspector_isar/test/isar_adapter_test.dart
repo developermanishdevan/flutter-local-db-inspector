@@ -16,10 +16,12 @@ void main() {
   var instance = 0;
 
   setUpAll(() async {
-    // Real Isar Core, downloaded once into .dart_tool (needs network on the
-    // first run).
-    final lib = Directory('${Directory.current.path}/.dart_tool/isar_core')
-      ..createSync(recursive: true);
+    // Real Isar Core, downloaded once per Isar version into .dart_tool
+    // (needs network on the first run). Isar refuses a core binary from
+    // another version, so an upgrade must not reuse an old download.
+    final lib = Directory(
+      '${Directory.current.path}/.dart_tool/isar_core/${Isar.version}',
+    )..createSync(recursive: true);
     await Isar.initializeIsarCore(
       download: true,
       libraries: {Abi.current(): '${lib.path}/${Abi.current()}.isar'},
