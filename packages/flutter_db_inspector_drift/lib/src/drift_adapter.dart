@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 
 import 'drift_executor.dart';

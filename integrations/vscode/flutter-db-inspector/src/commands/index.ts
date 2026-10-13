@@ -13,7 +13,7 @@ import type { DatabaseDescriptor, EntitySummary } from '../protocol/types';
 import { formatCount } from '../protocol/values';
 import { exportEntity, type ExportFormat, type ExportSummary } from '../services/exporter';
 import type { InspectorClient } from '../services/inspectorClient';
-import type { QueryStore } from '../services/queryStore';
+import { UNKNOWN_APP, type QueryStore } from '../services/queryStore';
 
 export interface CommandDeps {
   client: InspectorClient;
@@ -416,11 +416,26 @@ export function registerCommands(context: vscode.ExtensionContext, deps: Command
   register('flutterDbInspector.query.save', async (node: QueryNode) => {
     const sql = sqlOf(node);
     if (sql === undefined) return;
-    const name = await vscode.window.showInputBox({ title: 'Save Query', prompt: 'Name', value: sql.replace(/\s+/g, ' ').slice(0, 40) });
-    if (name) await queries.save(name, sql);
+    const app = manager.snapshot.appPackage ?? UNKNOWN_APP;
+    const name = await vscode.window.showInputBox({
+      title: `Save Query for ${app}`,
+      prompt: 'Name (an existing query with this name is replaced)',
+      value: sql.replace(/\s+/g, ' ').trim().slice(0, 40),
+      validateInput: (v) => (v.trim() ? undefined : 'Enter a name'),
+    });
+    if (!name?.trim()) return;
+    await queries.save(app, name, sql);
+    void vscode.window.showInformationMessage(`Saved query "${name.trim()}" for ${app}.`);
   });
   register('flutterDbInspector.query.delete', async (node: QueryNode) => {
-    if (node.kind === 'saved') await queries.deleteSaved(node.query.id);
+    if (node.kind === 'saved') {
+      const ok = await vscode.window.showWarningMessage(
+        `Delete saved query "${node.query.name}" (${node.app})?`,
+        { modal: true, detail: node.query.sql },
+        'Delete',
+      );
+      if (ok === 'Delete') await queries.deleteSaved(node.app, node.query.id);
+    }
     if (node.kind === 'history') await queries.deleteHistory(node.entry.id);
   });
   register('flutterDbInspector.query.clearHistory', async () => {

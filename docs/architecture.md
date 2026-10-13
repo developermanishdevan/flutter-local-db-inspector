@@ -53,7 +53,7 @@ Requests made while reconnecting wait for the app to come back instead of failin
 ## Repository layout
 
 ```
-packages/                   runtime, protocol and adapter packages
+packages/                   flutter_db_inspector (runtime, protocol, DevTools extension), connectors, client
 integrations/vscode/        VS Code extension (TypeScript)
 integrations/android-studio/ Android Studio / IntelliJ plugin (Kotlin)
 shared/web-ui/              data UI shared by the IDE integrations (TypeScript, no framework)
@@ -62,4 +62,4 @@ docs/                       this documentation
 tool/check.sh               format, analyze and test everything
 ```
 
-Every package resolves on its own. A `pubspec_overrides.yaml` in each package points the other inspector packages at their local folders, so local builds use local code while the published pubspecs use `^1.0.0` constraints. (A single pub workspace is not possible: the Isar, Realm and Drift code generators need incompatible `analyzer` / `source_gen` versions.)
+Every package resolves on its own. A `pubspec_overrides.yaml` in each package points the other inspector packages at their local folders, so local builds use local code while the published pubspecs use `^2.0.0` constraints. (A single pub workspace is not possible: the Isar, Realm and Drift code generators need incompatible `analyzer` / `source_gen` versions.)

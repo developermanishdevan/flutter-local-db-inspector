@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_isar/flutter_db_inspector_isar.dart';
 import 'package:isar_community/isar.dart';
 import 'package:test/test.dart';

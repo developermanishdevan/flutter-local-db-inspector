@@ -38,6 +38,9 @@ class FakeVm {
   /// When set, `inspector.status` fails with this error.
   InspectorError? statusError;
 
+  /// The root library reported by `getIsolate` (the app's entry point).
+  String? rootLibUri = 'package:demo_app/main.dart';
+
   int statusProtocol = protocolVersion;
   List<int> statusSupported = supportedProtocolVersions;
 
@@ -142,6 +145,13 @@ class FakeVm {
           ..._isolateRef(isolateId),
           'type': 'Isolate',
           'extensionRPCs': extensions.toList(),
+          if (rootLibUri case final uri?)
+            'rootLib': {
+              'type': '@Library',
+              'id': 'libraries/1',
+              'name': '',
+              'uri': uri,
+            },
         });
       case serviceExtensionName:
         final isolateId = params['isolateId']! as String;

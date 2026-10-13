@@ -57,6 +57,8 @@ void main() {
     expect(status.mode, InspectorMode.fullAccess);
     expect(status.limits.maxPageSize, 100);
     expect(status.methods, contains(Methods.valueRead));
+    // Root library: file:///…/example/inspector_server.dart.
+    expect(connection.snapshot.appPackage, 'inspector_server');
   });
 
   test('database.list → schema.list → rows.query with search and sort',

@@ -68,6 +68,11 @@ describe('VS Code client ↔ real Dart VM', () => {
     assert.equal(status.limits.maxPageSize, 100);
   });
 
+  test('reads the app package name from the root library', () => {
+    // The demo server is example/inspector_server.dart: no lib/, so the file name.
+    assert.equal(manager.snapshot.appPackage, 'inspector_server');
+  });
+
   test('database.list → schema.list → rows.query', async () => {
     const [db] = await waitForDatabases(client);
     assert.equal(db.id, 'app_database');

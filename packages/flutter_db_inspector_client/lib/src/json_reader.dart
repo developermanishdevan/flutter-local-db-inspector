@@ -1,4 +1,4 @@
-import 'package:flutter_db_inspector_protocol/flutter_db_inspector_protocol.dart';
+import 'package:flutter_db_inspector/protocol.dart';
 
 /// Lenient, typed reads from a decoded JSON response object. Missing
 /// required fields and wrong types throw [FormatException]; the client turns

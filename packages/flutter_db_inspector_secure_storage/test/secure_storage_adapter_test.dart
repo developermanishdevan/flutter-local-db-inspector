@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_secure_storage/flutter_db_inspector_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';

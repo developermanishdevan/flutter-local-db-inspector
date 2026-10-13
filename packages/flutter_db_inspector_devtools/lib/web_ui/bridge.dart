@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_db_inspector_client/flutter_db_inspector_client.dart';
 
+import '../services/saved_query_store.dart';
+
 /// Sends one message to the shared web UI (`window.postMessage` on the
 /// iframe in DevTools; a list in tests).
 typedef PostToWebUi = void Function(Map<String, Object?> message);
@@ -34,7 +36,9 @@ abstract interface class WebUiServices {
 /// * connection changes → `connection {state, message}`;
 /// * `flutter_db_inspector.databasesChanged` → `event {name}`;
 /// * DevTools theme changes → `theme {theme}`;
-/// * `request {id, request}` → `result {id, ok, result | error}`.
+/// * `request {id, request}` → `result {id, ok, result | error}`;
+/// * `savedQueries.*` requests → [savedQueries], for the connected (or last
+///   connected) app's package name (`ConnectionSnapshot.appPackage`).
 class WebUiBridge {
   WebUiBridge({
     required this.post,
@@ -43,8 +47,10 @@ class WebUiBridge {
     required Stream<void> databasesChanged,
     required this.darkTheme,
     required this.services,
+    required this.savedQueries,
     this.pageSize = defaultPageSize,
   }) {
+    _app = connection.value.appPackage;
     connection.addListener(_onConnection);
     darkTheme.addListener(_onTheme);
     _databasesSubscription = databasesChanged.listen((_) => _onDatabases());
@@ -58,7 +64,11 @@ class WebUiBridge {
   final ValueListenable<ConnectionSnapshot> connection;
   final ValueListenable<bool> darkTheme;
   final WebUiServices services;
+  final SavedQueryStore savedQueries;
   final int pageSize;
+
+  /// The connected (or last connected) app's package name.
+  String? _app;
 
   late final StreamSubscription<void> _databasesSubscription;
   bool _ready = false;
@@ -160,10 +170,42 @@ class WebUiBridge {
           services.notify(message, level: request['level'] as String?);
         }
         return const <String, Object?>{};
+      case 'savedQueries.list':
+        return _savedQueries(await savedQueries.list(_app));
+      case 'savedQueries.save':
+        final name = request['name'];
+        final sql = request['sql'];
+        final databaseType = request['databaseType'];
+        if (name is! String ||
+            sql is! String ||
+            name.trim().isEmpty ||
+            sql.trim().isEmpty) {
+          throw _invalid('savedQueries.save needs a name and SQL.');
+        }
+        return _savedQueries(await savedQueries.save(
+          _app ?? unknownApp,
+          name,
+          sql,
+          databaseType: databaseType is String ? databaseType : null,
+        ));
+      case 'savedQueries.delete':
+        final app = request['app'];
+        final id = request['id'];
+        if (app is! String || id is! String) {
+          throw _invalid('savedQueries.delete needs an app and an id.');
+        }
+        return _savedQueries(
+          await savedQueries.delete(app, id, current: _app),
+        );
       default:
         throw _invalid('The DevTools host does not support "$op".');
     }
   }
+
+  Map<String, Object?> _savedQueries(List<SavedQueryGroup> groups) => {
+        if (_app != null) 'app': _app,
+        'groups': [for (final g in groups) g.toJson()],
+      };
 
   static InspectorClientException _invalid(String message) =>
       InspectorClientException(ErrorCodes.invalidRequest, message);
@@ -172,6 +214,8 @@ class WebUiBridge {
 
   void _onConnection() {
     if (connection.value.isConnected) {
+      // Kept while disconnected: saved queries stay with the last app.
+      _app = connection.value.appPackage;
       _justConnected = true;
       scheduleMicrotask(() => _justConnected = false);
     }

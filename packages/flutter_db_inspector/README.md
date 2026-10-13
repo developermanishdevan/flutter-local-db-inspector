@@ -10,8 +10,9 @@ files on a device, copy them off, or open them in a separate SQLite browser.
 Run Flutter app → Open Flutter DB Inspector → Database → Table → Rows → Search / Filter / Edit / Query
 ```
 
-This is the one package apps add: it includes every connector and ships the
-**DevTools extension**.
+This package is the runtime, the wire protocol and the **DevTools
+extension**. It is pure Dart with no database dependencies. Add it plus one
+connector package per storage your app uses.
 
 ## Supported storage
 
@@ -25,8 +26,23 @@ This is the one package apps add: it includes every connector and ships the
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_sqlite: ^2.0.0   # one connector per storage you use
+  flutter_db_inspector_hive: ^2.0.0
 ```
+
+| Storage | Connector package | Adapter |
+|---|---|---|
+| sqflite / sqflite_common_ffi / Floor | `flutter_db_inspector_sqlite` | `SqliteAdapter(db)` |
+| Drift | `flutter_db_inspector_drift` | `DriftAdapter(db)` |
+| Isar (`isar_community`) | `flutter_db_inspector_isar` | `IsarAdapter(isar, schemas)` |
+| ObjectBox | `flutter_db_inspector_objectbox` | `ObjectBoxAdapter(store, collections)` |
+| Realm | `flutter_db_inspector_realm` | `RealmAdapter(realm)` |
+| Sembast | `flutter_db_inspector_sembast` | `SembastAdapter(db)` |
+| Hive (`hive_ce`) | `flutter_db_inspector_hive` | `HiveAdapter(boxes)` |
+| SharedPreferences | `flutter_db_inspector_shared_preferences` | `SharedPreferencesAdapter(prefs)` |
+| flutter_secure_storage | `flutter_db_inspector_secure_storage` | `SecureStorageAdapter(storage)` |
+| GetStorage | `flutter_db_inspector_get_storage` | `GetStorageAdapter(containers)` |
 
 ## Set up
 
@@ -34,6 +50,8 @@ dependencies:
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_db_inspector/flutter_db_inspector.dart';
+import 'package:flutter_db_inspector_hive/flutter_db_inspector_hive.dart';
+import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +93,7 @@ Android Studio. It must only run in debug builds.
    or creates the instance. Show me this list before changing anything.
 
 2. ADD DEPENDENCIES (flutter pub add), only for what you found:
-   - flutter_db_inspector_core
+   - flutter_db_inspector (runtime, protocol and the DevTools tab)
    - plus the matching connector for each storage:
      sqflite / sqflite_common_ffi / floor -> flutter_db_inspector_sqlite
      drift              -> flutter_db_inspector_drift
@@ -87,9 +105,8 @@ Android Studio. It must only run in debug builds.
      shared_preferences -> flutter_db_inspector_shared_preferences
      flutter_secure_storage -> flutter_db_inspector_secure_storage
      get_storage        -> flutter_db_inspector_get_storage
-   Use core + connectors, NOT the all-in-one flutter_db_inspector package: it
-   pulls in every engine (the Isar/ObjectBox/Realm ones use dart:ffi and break
-   Flutter web) and can clash with build_runner / drift_dev.
+   Add only the connectors for storage the app actually uses; each one pulls
+   in its database's own dependencies.
    If the app uses the original `isar` package (not isar_community) or classic
    `hive` 2.x (not hive_ce), do not add that connector; tell me instead.
    If pub cannot resolve, stop and show me the error. Never change the
@@ -99,7 +116,7 @@ Android Studio. It must only run in debug builds.
    flavor mains), after WidgetsFlutterBinding.ensureInitialized() and before
    runApp():
      import 'package:flutter/foundation.dart';
-     import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+     import 'package:flutter_db_inspector/flutter_db_inspector.dart';
      DbInspector.initialize(enabled: kDebugMode);
 
 4. REGISTER EACH DATABASE right after the app opens it, in that same place
@@ -167,13 +184,13 @@ This is a development tool:
 - `DbInspector.initialize(readOnly: true)` blocks every write.
 - `sensitiveColumns` masks values; Secure Storage values are masked by default.
 
-## Smaller apps
+## Upgrading from 1.x
 
-This package also brings in the SharedPreferences, Secure Storage and
-GetStorage plugins and Drift's bundled SQLite, even when your app doesn't use
-them. Size-sensitive apps can depend on
-[`flutter_db_inspector_core`](https://pub.dev/packages/flutter_db_inspector_core)
-plus only the connectors they use.
+In 1.x this package re-exported every connector. In 2.0.0 the connectors are
+opt-in, and `flutter_db_inspector_core` and `flutter_db_inspector_protocol`
+are merged into this package. See the
+[CHANGELOG](https://github.com/developermanishdevan/flutter-local-db-inspector/blob/main/packages/flutter_db_inspector/CHANGELOG.md)
+for the migration steps.
 
 ## More
 

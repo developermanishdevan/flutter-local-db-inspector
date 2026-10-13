@@ -44,10 +44,13 @@ One page with the database tree, closeable tabs (data/schema, SQL console with h
 | `copy {text, label?}` | writes the clipboard |
 | `saveFile {name, text? \| base64?}` | asks where to save (`name` is the suggested file name), writes UTF-8 `text` or decoded `base64`, and answers `{}` or `{cancelled: true}` |
 | `notify {message, level?}` | optional native notification |
+| `savedQueries.list` | answers `{app?, groups: [{app, queries: [{id, name, sql, databaseType?, createdAt, updatedAt?}]}]}`: every app with saved queries, the connected (or last connected) app first. `app` is that app's Dart package name |
+| `savedQueries.save {name, sql, databaseType?}` | saves for the connected app; a query with the same name (ignoring case) is replaced, keeping its `id`. Answers like `savedQueries.list` |
+| `savedQueries.delete {app, id}` | deletes one saved query of `app`. Answers like `savedQueries.list` |
 
 Unknown ops should be answered with `ok: false` (code `INVALID_REQUEST`), never ignored, so the UI does not wait forever.
 
-SQL history and saved queries are kept in the page's `localStorage`, never in the app.
+Saved queries are kept by the host per app, keyed by the app's Dart package name, until the user deletes them: Android Studio in its application settings, DevTools in the project's `.dart_tool/` (through the Dart Tooling Daemon) or the browser's storage. The package name comes from the isolate's root library (`package:<name>/main.dart`); see `appPackage.ts`, `AppPackage.kt` and `app_package.dart`, which must agree. A host without the `savedQueries.*` requests (answered with `INVALID_REQUEST`) makes the UI keep saved queries in the page's `localStorage`. SQL history is always kept in the page's `localStorage`. Nothing is ever stored in the app.
 
 The protocol types and value helpers, client, exporter, query store and labels are imported from the VS Code extension through the `@protocol/*`, `@messages`, `@services/*` and `@labels` aliases in [`tsconfig.json`](tsconfig.json). The extension also runs them on Node.
 

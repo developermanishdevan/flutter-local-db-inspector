@@ -2,7 +2,7 @@ name: flutter_db_inspector_realm
 description: >-
   Realm adapter for Flutter DB Inspector. Browse, filter, sort and edit Realm
   objects through Realm's dynamic API, without per-class code.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
 repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_realm
 issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
@@ -16,7 +16,7 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
-  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector: ^2.0.0
   realm_dart: ^20.2.0
 
 dev_dependencies:

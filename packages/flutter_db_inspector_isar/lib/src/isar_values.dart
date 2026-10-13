@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:isar_community/isar.dart';
 
 /// Conversions between Isar's JSON export/import format and the inspector's

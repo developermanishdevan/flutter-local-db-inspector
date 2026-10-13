@@ -13,8 +13,8 @@ without writing per-collection code.
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_isar: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_isar: ^2.0.0
   isar_community: ^3.3.0
 ```
 

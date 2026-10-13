@@ -34,14 +34,16 @@ The inspector doesn't assume everything is a SQL table. Each adapter reports its
 
 ## Quick start
 
-Add **one** package; every connector is included:
+Add `flutter_db_inspector` (runtime, protocol and the DevTools tab), plus one connector per storage your app uses:
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_sqlite: ^2.0.0   # sqflite / Floor
+  flutter_db_inspector_hive: ^2.0.0     # hive_ce
 ```
 
-> Until the packages are published to pub.dev, use this GitHub repository directly. That one entry is still all you need:
+> Until the packages are published to pub.dev, use this GitHub repository directly, one entry per package:
 >
 > ```yaml
 > dependencies:
@@ -49,6 +51,10 @@ dependencies:
 >     git:
 >       url: https://github.com/developermanishdevan/flutter-local-db-inspector.git
 >       path: packages/flutter_db_inspector
+>   flutter_db_inspector_sqlite:
+>     git:
+>       url: https://github.com/developermanishdevan/flutter-local-db-inspector.git
+>       path: packages/flutter_db_inspector_sqlite
 > ```
 >
 > To build the VS Code and Android Studio plugins from source, see [docs/vscode.md](docs/vscode.md) and [docs/android_studio.md](docs/android_studio.md).
@@ -56,6 +62,8 @@ dependencies:
 ```dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter_db_inspector/flutter_db_inspector.dart';
+import 'package:flutter_db_inspector_hive/flutter_db_inspector_hive.dart';
+import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,7 +106,7 @@ Android Studio. It must only run in debug builds.
    or creates the instance. Show me this list before changing anything.
 
 2. ADD DEPENDENCIES (flutter pub add), only for what you found:
-   - flutter_db_inspector_core
+   - flutter_db_inspector (runtime, protocol and the DevTools tab)
    - plus the matching connector for each storage:
      sqflite / sqflite_common_ffi / floor -> flutter_db_inspector_sqlite
      drift              -> flutter_db_inspector_drift
@@ -110,9 +118,8 @@ Android Studio. It must only run in debug builds.
      shared_preferences -> flutter_db_inspector_shared_preferences
      flutter_secure_storage -> flutter_db_inspector_secure_storage
      get_storage        -> flutter_db_inspector_get_storage
-   Use core + connectors, NOT the all-in-one flutter_db_inspector package: it
-   pulls in every engine (the Isar/ObjectBox/Realm ones use dart:ffi and break
-   Flutter web) and can clash with build_runner / drift_dev.
+   Add only the connectors for storage the app actually uses; each one pulls
+   in its database's own dependencies.
    If the app uses the original `isar` package (not isar_community) or classic
    `hive` 2.x (not hive_ce), do not add that connector; tell me instead.
    If pub cannot resolve, stop and show me the error. Never change the
@@ -122,7 +129,7 @@ Android Studio. It must only run in debug builds.
    flavor mains), after WidgetsFlutterBinding.ensureInitialized() and before
    runApp():
      import 'package:flutter/foundation.dart';
-     import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+     import 'package:flutter_db_inspector/flutter_db_inspector.dart';
      DbInspector.initialize(enabled: kDebugMode);
 
 4. REGISTER EACH DATABASE right after the app opens it, in that same place
@@ -168,9 +175,7 @@ Review the agent's changes before you commit them.
 
 | Package | Purpose |
 |---|---|
-| [`flutter_db_inspector`](packages/flutter_db_inspector) | **The one package apps add.** Re-exports the runtime and every connector below, and ships the DevTools extension |
-| [`flutter_db_inspector_core`](packages/flutter_db_inspector_core) | Runtime: `DbInspector`, registry, router, VM service extension, generic document and key-value engines |
-| [`flutter_db_inspector_protocol`](packages/flutter_db_inspector_protocol) | Wire protocol shared by the runtime and every client |
+| [`flutter_db_inspector`](packages/flutter_db_inspector) | **Every app adds this.** Runtime (`DbInspector`, registry, router, VM service extension, generic document and key-value engines), the wire protocol (`package:flutter_db_inspector/protocol.dart`) and the DevTools extension. Pure Dart, no database dependencies |
 | [`flutter_db_inspector_client`](packages/flutter_db_inspector_client) | Pure Dart client (VM service connection, hot-restart handling, typed protocol calls) |
 | [`flutter_db_inspector_devtools`](packages/flutter_db_inspector_devtools) | DevTools extension source (Flutter web); built into `flutter_db_inspector/extension/devtools` |
 | [`flutter_db_inspector_sqlite`](packages/flutter_db_inspector_sqlite) | SQLite / sqflite / FFI / Floor |
@@ -184,15 +189,15 @@ Review the agent's changes before you commit them.
 | [`flutter_db_inspector_secure_storage`](packages/flutter_db_inspector_secure_storage) | flutter_secure_storage (values masked by default) |
 | [`flutter_db_inspector_get_storage`](packages/flutter_db_inspector_get_storage) | GetStorage |
 
-Connector packages are included by `flutter_db_inspector`. Size-sensitive apps can depend on `flutter_db_inspector_core` plus only the connectors they use. The all-in-one package also brings in the SharedPreferences, Secure Storage and GetStorage plugins and Drift's bundled SQLite, even when your app doesn't use them.
+Connectors are opt-in: add only the ones for storage your app uses. Each connector depends on `flutter_db_inspector`, so its database's dependencies (native libraries, code generators) never reach apps that don't use that database. Upgrading from 1.x? See [the 2.0.0 migration notes](packages/flutter_db_inspector/CHANGELOG.md).
 
 ## Clients
 
 | Client | Status |
 |---|---|
-| [VS Code extension](integrations/vscode/flutter-db-inspector) · [Marketplace](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector) | ✅ 1.0: tree, data grid, editing, schema, SQL console, history, statistics, export |
-| [DevTools extension](docs/devtools.md) | ✅ 1.0: ships inside `flutter_db_inspector`; tree, data grid, editing, schema, SQL console with history, statistics |
-| [Android Studio / IntelliJ plugin](integrations/android-studio/flutter-db-inspector) · [Marketplace](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector) | ✅ 1.0: *Flutter DB* tool window; run-console discovery, tree, data grid, editing, schema, SQL console with history, statistics, export ([docs](docs/android_studio.md)) |
+| [VS Code extension](integrations/vscode/flutter-db-inspector) · [Marketplace](https://marketplace.visualstudio.com/items?itemName=developer-manishdevan.flutter-db-inspector) | ✅ 2.0: tree, data grid, editing, schema, SQL console, history, saved queries per app, statistics, export |
+| [DevTools extension](docs/devtools.md) | ✅ 2.0: ships inside `flutter_db_inspector`; tree, data grid, editing, schema, SQL console with history and saved queries per app, statistics |
+| [Android Studio / IntelliJ plugin](integrations/android-studio/flutter-db-inspector) · [Marketplace](https://plugins.jetbrains.com/plugin/34899-flutter-db-inspector) | ✅ 2.0: *Flutter DB* tool window; run-console discovery, tree, data grid, editing, schema, SQL console with history and saved queries per app, statistics, export ([docs](docs/android_studio.md)) |
 
 ## Architecture in one picture
 

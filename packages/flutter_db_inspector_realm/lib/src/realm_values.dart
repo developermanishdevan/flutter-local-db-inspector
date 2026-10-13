@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:realm_dart/realm.dart';
 
 /// Conversions between Realm property values and the JSON-like values the

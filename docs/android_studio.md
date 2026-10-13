@@ -39,7 +39,7 @@ Android Studio. It must only run in debug builds.
    or creates the instance. Show me this list before changing anything.
 
 2. ADD DEPENDENCIES (flutter pub add), only for what you found:
-   - flutter_db_inspector_core
+   - flutter_db_inspector (runtime, protocol and the DevTools tab)
    - plus the matching connector for each storage:
      sqflite / sqflite_common_ffi / floor -> flutter_db_inspector_sqlite
      drift              -> flutter_db_inspector_drift
@@ -51,9 +51,8 @@ Android Studio. It must only run in debug builds.
      shared_preferences -> flutter_db_inspector_shared_preferences
      flutter_secure_storage -> flutter_db_inspector_secure_storage
      get_storage        -> flutter_db_inspector_get_storage
-   Use core + connectors, NOT the all-in-one flutter_db_inspector package: it
-   pulls in every engine (the Isar/ObjectBox/Realm ones use dart:ffi and break
-   Flutter web) and can clash with build_runner / drift_dev.
+   Add only the connectors for storage the app actually uses; each one pulls
+   in its database's own dependencies.
    If the app uses the original `isar` package (not isar_community) or classic
    `hive` 2.x (not hive_ce), do not add that connector; tell me instead.
    If pub cannot resolve, stop and show me the error. Never change the
@@ -63,7 +62,7 @@ Android Studio. It must only run in debug builds.
    flavor mains), after WidgetsFlutterBinding.ensureInitialized() and before
    runApp():
      import 'package:flutter/foundation.dart';
-     import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+     import 'package:flutter_db_inspector/flutter_db_inspector.dart';
      DbInspector.initialize(enabled: kDebugMode);
 
 4. REGISTER EACH DATABASE right after the app opens it, in that same place
@@ -123,7 +122,7 @@ dart run --enable-vm-service example/inspector_server.dart
 
 ## Web UI and Swing fallback
 
-By default the tool window shows the **shared web UI** ([`shared/web-ui`](../shared/web-ui), the same UI as the VS Code extension and DevTools) in an embedded Chromium browser (JCEF), under the native toolbar (Connect, Refresh, SQL Console, Disconnect). It follows the IDE's light or dark theme, and takes rows per page, *confirm cell edits* and the history size from the plugin settings. In this UI, SQL history and saved queries are kept by the page (browser storage), not in the project's workspace file.
+By default the tool window shows the **shared web UI** ([`shared/web-ui`](../shared/web-ui), the same UI as the VS Code extension and DevTools) in an embedded Chromium browser (JCEF), under the native toolbar (Connect, Refresh, SQL Console, Disconnect). It follows the IDE's light or dark theme, and takes rows per page, *confirm cell edits* and the history size from the plugin settings. In this UI, SQL history is kept by the page (browser storage); saved queries are kept by the IDE (see below).
 
 The plugin uses the classic **Swing UI** described below instead when the IDE has no JCEF support, when *Settings ▸ Tools ▸ Flutter DB Inspector ▸ Use the web UI* is off (the tool window switches as soon as you apply), or when the plugin was built with `-PskipWebUi`.
 
@@ -147,7 +146,8 @@ The plugin uses the classic **Swing UI** described below instead when the IDE ha
   - Run with Ctrl/Cmd+Enter (runs the selection if there is one) and Cancel.
   - Results grid with elapsed time, row count and a truncation notice.
   - Statements that may write show *"This query may modify application data."* with **[Cancel] [Execute]**, then re-run with `allowWrite`.
-  - History and saved queries are stored by the IDE in the project's workspace file, never in the app.
+  - History is stored by the IDE in the project's workspace file, never in the app.
+  - Saved queries are kept per app, under the app's Dart package name, in the IDE's application settings (`flutterDbInspector.xml`) until you delete them, so they survive restarts and project switches. Both UIs share them; re-run or delete them from the SQL console's saved-queries list.
 - **Statistics**: size, entity, index and record counts, and the largest entities.
 - **Hot restart**: the plugin reconnects automatically and reloads open tabs. Requests made during a restart wait for the app to come back. Reads interrupted by the restart are retried. Writes are reported so you can try again.
 - **Settings** (*Settings ▸ Tools ▸ Flutter DB Inspector*): use the web UI, auto-connect, request timeout, rows per page, confirm cell edits, and history size.

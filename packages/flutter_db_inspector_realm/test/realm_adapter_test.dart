@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_realm/flutter_db_inspector_realm.dart';
 import 'package:realm_dart/realm.dart';
 import 'package:test/test.dart';

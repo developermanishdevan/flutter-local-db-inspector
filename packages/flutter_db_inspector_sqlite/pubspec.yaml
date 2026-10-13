@@ -3,7 +3,7 @@ description: >-
   SQLite adapter for Flutter DB Inspector. Works with sqflite,
   sqflite_common_ffi, Floor and any SQLite executor; also powers the Drift
   adapter.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
 repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_sqlite
 issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
@@ -18,7 +18,7 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
-  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector: ^2.0.0
   sqflite_common: ^2.5.0
 
 dev_dependencies:

@@ -953,6 +953,9 @@ a:hover { text-decoration: underline; color: var(--vscode-textLink-activeForegro
   font-size: var(--mono-size);
 }
 
+.saved-app { display: flex; align-items: center; gap: 4px; margin: 0 0 6px; font-size: 0.9em; }
+.saved-others { margin: 4px 0 10px; }
+.saved-others summary { cursor: pointer; padding: 2px 0 6px; color: var(--vscode-descriptionForeground); }
 .history-meta {
   padding-left: 20px;
   overflow: hidden;

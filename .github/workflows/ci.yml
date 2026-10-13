@@ -19,8 +19,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         package:
-          - flutter_db_inspector_protocol
-          - flutter_db_inspector_core
+          - flutter_db_inspector
           - flutter_db_inspector_sqlite
           - flutter_db_inspector_drift
           - flutter_db_inspector_sembast
@@ -88,7 +87,6 @@ jobs:
           - flutter_db_inspector_secure_storage
           - flutter_db_inspector_get_storage
           - flutter_db_inspector_devtools
-          - flutter_db_inspector
           - ../examples/sqlite_example
     steps:
       - uses: actions/checkout@v4

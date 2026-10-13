@@ -4,7 +4,7 @@ description: >-
   the Dart VM service, survives hot restarts and exposes the inspector
   protocol as typed calls. Used by the DevTools extension; reusable by any
   Dart tool.
-version: 1.0.0
+version: 2.0.0
 repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_client
 issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
 # Local/shared builds use path dependencies between the inspector packages.
@@ -16,8 +16,8 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
-  flutter_db_inspector_protocol:
-    path: ../flutter_db_inspector_protocol
+  flutter_db_inspector:
+    path: ../flutter_db_inspector
   vm_service: ">=14.0.0 <16.0.0"
 
 dev_dependencies:

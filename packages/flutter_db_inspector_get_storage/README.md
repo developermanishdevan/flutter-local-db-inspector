@@ -7,8 +7,8 @@ Inspector. Browse, search and edit GetStorage containers while your app runs.
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_get_storage: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_get_storage: ^2.0.0
 ```
 
 ## Register

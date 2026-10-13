@@ -36,25 +36,19 @@ class QueryStoreAndExporterTest {
     }
 
     @Test
-    fun `saved queries are sorted by name and persisted in state`() {
+    fun `drafts and legacy saved queries are kept in state`() {
         val s = store()
-        var changes = 0
-        s.addListener { changes++ }
-        s.save("zeta", " SELECT z ", "sqlite")
-        val alpha = s.save("Alpha", "SELECT a")
-        assertEquals(listOf("Alpha", "zeta"), s.saved.map { it.name })
-        assertEquals("SELECT z", s.saved[1].sql)
-        s.deleteSaved(alpha.id)
-        assertEquals(listOf("zeta"), s.state.saved.map { it.name })
+        s.state.saved += SavedQuery("q1", "zeta", "SELECT z", "sqlite", 1)
         s.setDraft("a", "SELECT draft")
         assertEquals("SELECT draft", s.draft("a"))
         s.setDraft("a", " ")
         assertEquals(null, s.draft("a"))
-        assertEquals(3, changes)
 
         val restored = store()
         restored.loadState(s.state)
-        assertEquals(listOf("zeta"), restored.saved.map { it.name })
+        assertEquals(listOf("zeta"), restored.legacySaved.map { it.name })
+        assertEquals(listOf("zeta"), restored.takeLegacySaved().map { it.name })
+        assertTrue(restored.legacySaved.isEmpty())
     }
 
     /** A fake app with 150 rows: exact big integers, a masked column and a truncated text. */

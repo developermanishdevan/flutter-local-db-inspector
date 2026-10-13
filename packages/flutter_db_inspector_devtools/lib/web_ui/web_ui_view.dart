@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../services/connection_manager.dart';
+import '../services/saved_query_store.dart';
 import 'bridge.dart';
 import 'platform_stub.dart' if (dart.library.js_interop) 'platform_web.dart'
     as platform;
@@ -34,12 +35,16 @@ class WebUiView extends StatelessWidget {
     required this.connection,
     required this.darkTheme,
     required this.services,
+    required this.savedQueries,
     required this.onUseClassic,
   });
 
   final ConnectionManager connection;
   final ValueListenable<bool> darkTheme;
   final WebUiServices services;
+
+  /// Kept by the host per app (`savedQueries.*` requests).
+  final SavedQueryStore savedQueries;
 
   /// Switches to the classic UI (offered when the web UI is missing).
   final VoidCallback onUseClassic;
@@ -53,6 +58,7 @@ class WebUiView extends StatelessWidget {
           databasesChanged: connection.databasesChanged,
           darkTheme: darkTheme,
           services: services,
+          savedQueries: savedQueries,
         ),
         missing: _Missing(onUseClassic: onUseClassic),
         dark: darkTheme.value,

@@ -1,10 +1,10 @@
-import type { FullValue, OpenTarget, WebviewRequest } from '@messages';
+import type { FullValue, OpenTarget, SavedQueriesResult, WebviewRequest } from '@messages';
 import { recordNoun } from '@labels';
 import { InspectorError, type DatabaseDescriptor, type EntityKind, type MutationResult, type SqlResult } from '@protocol/types';
 import { bytesToBase64, formatCount, utf8Decode } from '@protocol/values';
 import { exportEntity, type ExportFormat } from '@services/exporter';
 import { InspectorClient } from '@services/inspectorClient';
-import { QueryStore, type KeyValueMemento } from '@services/queryStore';
+import { QueryStore, UNKNOWN_APP, type KeyValueMemento, type SavedQuery, type SavedQueryGroup } from '@services/queryStore';
 import { chooseDialog, confirmDialog, promptDialog } from './dialog';
 import { HostError, isCancelled, request, scopedState, type ViewHost } from './host';
 
@@ -57,7 +57,75 @@ export interface AppSettings {
 }
 
 export const settings: AppSettings = { confirmCellEdits: false, historyLimit: 100 };
+/** SQL history (this page's storage). Saved queries live in [savedQueries]. */
 export const queries = new QueryStore(localMemento('flutter_db_inspector.'), () => settings.historyLimit);
+
+/**
+ * Saved queries, kept by the host per app (Dart package name) until the user
+ * deletes them. Hosts without the `savedQueries.*` requests fall back to this
+ * page's storage.
+ */
+class SavedQueries {
+  app: string | undefined;
+  groups: SavedQueryGroup[] = [];
+  private hostStore = true;
+  private readonly listeners = new Set<() => void>();
+
+  onDidChange(listener: () => void): void {
+    this.listeners.add(listener);
+  }
+
+  /** The connected app's saved queries. */
+  get current(): SavedQuery[] {
+    return this.groups.find((g) => g.app === (this.app ?? UNKNOWN_APP))?.queries ?? [];
+  }
+
+  /** Other apps' saved queries, still listed until deleted. */
+  get others(): SavedQueryGroup[] {
+    return this.groups.filter((g) => g.app !== (this.app ?? UNKNOWN_APP));
+  }
+
+  refresh(): Promise<void> {
+    return this.apply({ op: 'savedQueries.list' }, () => undefined);
+  }
+
+  save(name: string, sql: string, databaseType?: string): Promise<void> {
+    return this.apply({ op: 'savedQueries.save', name, sql, databaseType }, (store, app) => store.save(app, name, sql, databaseType));
+  }
+
+  delete(app: string, id: string): Promise<void> {
+    return this.apply({ op: 'savedQueries.delete', app, id }, (store) => store.deleteSaved(app, id));
+  }
+
+  private async apply(
+    req: Extract<WebviewRequest, { op: `savedQueries.${string}` }>,
+    local: (store: QueryStore, app: string) => Promise<unknown> | undefined,
+  ): Promise<void> {
+    if (this.hostStore) {
+      try {
+        const result = await request<SavedQueriesResult>(req);
+        this.app = result.app;
+        this.groups = result.groups ?? [];
+        this.changed();
+        return;
+      } catch (error) {
+        if (!(error instanceof HostError && error.code === 'INVALID_REQUEST' && /savedQueries/.test(error.message))) throw error;
+        // An older host: keep saved queries in this page instead.
+        this.hostStore = false;
+      }
+    }
+    const app = this.app ?? UNKNOWN_APP;
+    await local(queries, app);
+    this.groups = queries.savedGroups(app);
+    this.changed();
+  }
+
+  private changed(): void {
+    for (const l of [...this.listeners]) l();
+  }
+}
+
+export const savedQueries = new SavedQueries();
 
 /** What views ask of the app shell. */
 export interface ShellCallbacks {
@@ -194,10 +262,18 @@ export function viewHost(
         shell.open({ view: 'sql', databaseId: d.id, sql: req.sql, suggest: true });
         return {};
       case 'saveQuery': {
-        const name = await promptDialog({ title: 'Save query', label: 'Name', value: firstLine(req.sql), okLabel: 'Save' });
+        await savedQueries.refresh().catch(() => undefined);
+        const app = savedQueries.app ?? UNKNOWN_APP;
+        const input = await promptDialog({
+          title: `Save query for ${app}`,
+          label: 'Name (an existing query with this name is replaced)',
+          value: firstLine(req.sql),
+          okLabel: 'Save',
+        });
+        const name = input?.trim();
         if (!name) return { cancelled: true };
-        await queries.save(name, req.sql, d.type);
-        shell.notify(`Saved query "${name}".`);
+        await savedQueries.save(name, req.sql, d.type);
+        shell.notify(`Saved query "${name}" for ${app}.`);
         return {};
       }
       default:

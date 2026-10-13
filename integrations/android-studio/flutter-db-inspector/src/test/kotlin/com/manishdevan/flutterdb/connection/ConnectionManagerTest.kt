@@ -34,6 +34,8 @@ private class ScriptedVm : VmTransport {
     val isolates = CopyOnWriteArrayList<Pair<String, MutableList<String>>>()
     var protocolVersions = listOf(1)
     var disabled = false
+    /** `rootLib.uri` reported by `getIsolate`; null leaves it out. */
+    var rootLib: String? = null
     val calls = CopyOnWriteArrayList<String>()
 
     override suspend fun call(method: String, params: JsonObject, timeoutMs: Long?): JsonElement {
@@ -43,7 +45,7 @@ private class ScriptedVm : VmTransport {
             "getVM" -> Json.obj("isolates" to JsonArray().apply { isolates.forEach { add(Json.obj("id" to it.first)) } })
             "getIsolate" -> Json.obj(
                 "extensionRPCs" to (isolates.firstOrNull { it.first == params.get("isolateId").asString }?.second ?: emptyList<String>()),
-            )
+            ).apply { rootLib?.let { add("rootLib", Json.obj("uri" to it)) } }
             Protocol.SERVICE_EXTENSION -> {
                 val isolate = isolates.firstOrNull { it.first == params.get("isolateId").asString }
                 if (isolate == null || Protocol.SERVICE_EXTENSION !in isolate.second) throw RpcError(-32601, "Method not found")
@@ -135,6 +137,26 @@ class ConnectionManagerTest {
         assertEquals("fullAccess", s.status?.mode)
         assertEquals(1, databasesChanged.get())
         assertEquals("database.list", manager.request("database.list").get("echo").asString)
+        manager.dispose()
+    }
+
+    @Test
+    fun `reads the app package after the handshake and keeps it after disconnect`() = runBlocking {
+        val vm = ScriptedVm()
+        vm.rootLib = "package:sfa_app/main.dart"
+        vm.register("isolates/1")
+        val manager = ConnectionManager(scope, fast)
+        manager.connect(target(vm))
+        assertEquals("sfa_app", manager.await(ConnectionState.CONNECTED).appPackage)
+        manager.disconnect()
+        assertEquals("sfa_app", manager.snapshot.appPackage)
+
+        // A new connection starts without a package until its own handshake.
+        val other = ScriptedVm()
+        other.register("isolates/1")
+        manager.connect(target(other))
+        assertEquals(ConnectionState.CONNECTED, manager.snapshot.state)
+        assertEquals(null, manager.snapshot.appPackage)
         manager.dispose()
     }
 

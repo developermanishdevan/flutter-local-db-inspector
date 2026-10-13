@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_protocol/flutter_db_inspector_protocol.dart';
+import 'package:flutter_db_inspector/protocol.dart';
 
 import 'json_reader.dart';
 import 'values.dart';

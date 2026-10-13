@@ -31,6 +31,7 @@ import com.manishdevan.flutterdb.connection.ConnectionState
 import com.manishdevan.flutterdb.protocol.Protocol
 import com.manishdevan.flutterdb.service.InspectorService
 import com.manishdevan.flutterdb.service.InspectorSettings
+import com.manishdevan.flutterdb.service.SavedQueryStore
 import com.manishdevan.flutterdb.toolwindow.InspectorToolWindowPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -214,6 +215,10 @@ class WebInspectorPanel(
         // Notifications render HTML; page text can contain app-controlled names.
         FlutterDbPlugin.notify(project, StringUtil.escapeXmlEntities(message), type)
     }
+
+    override fun currentApp(): String? = service.snapshot.appPackage
+
+    override val savedQueries: SavedQueryStore get() = service.savedQueries
 
     override fun logError(message: String) {
         LOG.warn("Web UI: $message")

@@ -113,7 +113,24 @@ export type WebviewRequest =
   | { op: 'call'; method: string; params: Record<string, unknown> }
   /** Saves a file chosen by the user; resolves `{cancelled: true}` when they cancel. */
   | { op: 'saveFile'; name: string; text?: string; base64?: string }
-  | { op: 'notify'; message: string; level?: 'info' | 'warning' | 'error' };
+  | { op: 'notify'; message: string; level?: 'info' | 'warning' | 'error' }
+  /**
+   * Saved queries, kept by the host per app (the connected app's Dart package
+   * name) until the user deletes them. Answers {@link SavedQueriesResult}.
+   */
+  | { op: 'savedQueries.list' }
+  /** Saves for the connected app; a query with the same name is replaced. Answers {@link SavedQueriesResult}. */
+  | { op: 'savedQueries.save'; name: string; sql: string; databaseType?: string }
+  /** Deletes one saved query of [app]. Answers {@link SavedQueriesResult}. */
+  | { op: 'savedQueries.delete'; app: string; id: string };
+
+/** Answer to the `savedQueries.*` requests. */
+export interface SavedQueriesResult {
+  /** The connected (or last connected) app's package name; absent when unknown. */
+  app?: string;
+  /** Every app with saved queries, the current app first. */
+  groups: { app: string; queries: { id: string; name: string; sql: string; databaseType?: string; createdAt: number; updatedAt?: number }[] }[];
+}
 
 export type WebviewMessage =
   | { type: 'ready' }

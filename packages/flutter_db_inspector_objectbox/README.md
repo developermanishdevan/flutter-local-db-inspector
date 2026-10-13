@@ -11,8 +11,8 @@ and from JSON-like maps.
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_objectbox: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_objectbox: ^2.0.0
   objectbox: ^5.0.0
 ```
 

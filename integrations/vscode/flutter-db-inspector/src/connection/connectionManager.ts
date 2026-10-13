@@ -10,6 +10,7 @@ import {
   type InspectorResponse,
   type InspectorStatus,
 } from '../protocol/types';
+import { appPackageOf } from './appPackage';
 import { Emitter } from './emitter';
 import { RpcError, type VmStreamEvent, type VmTransport } from './transport';
 
@@ -28,6 +29,8 @@ export interface ConnectionSnapshot {
   target?: { id: string; label: string };
   isolateId?: string;
   status?: InspectorStatus;
+  /** The app's Dart package name (see appPackageOf); saved queries are kept per app. */
+  appPackage?: string;
   /** Human readable explanation for `connecting`, `reconnecting` and `error`. */
   message?: string;
 }
@@ -87,6 +90,8 @@ export class ConnectionManager {
   private target?: ConnectionTarget;
   private isolateId?: string;
   private status?: InspectorStatus;
+  /** Kept after a disconnect, so the last app's saved queries stay in view. */
+  private appPackage?: string;
   private state: ConnectionState = 'disconnected';
   private message?: string;
   private generation = 0;
@@ -117,6 +122,7 @@ export class ConnectionManager {
       target: this.target && { id: this.target.id, label: this.target.label },
       isolateId: this.isolateId,
       status: this.status,
+      appPackage: this.appPackage,
       message: this.message,
     };
   }
@@ -156,6 +162,7 @@ export class ConnectionManager {
     this.teardown();
     const generation = ++this.generation;
     this.target = target;
+    this.appPackage = undefined;
     this.setState('connecting', `Connecting to ${target.label}…`);
 
     let transport: VmTransport;
@@ -269,6 +276,20 @@ export class ConnectionManager {
     }
   }
 
+  /** The app's package name from the isolate's root library; undefined if the VM won't say. */
+  private async readAppPackage(isolateId: string): Promise<string | undefined> {
+    try {
+      const isolate = (await this.transport?.call('getIsolate', { isolateId }, this.options.requestTimeoutMs)) as
+        | { rootLib?: { uri?: string }; libraries?: { uri?: string }[] }
+        | undefined;
+      const libraries = (isolate?.libraries ?? []).map((l) => l.uri ?? '');
+      return appPackageOf(isolate?.rootLib?.uri, libraries);
+    } catch (error) {
+      this.log(`could not read the app's package name: ${errorMessage(error)}`);
+      return undefined;
+    }
+  }
+
   /** Makes [isolateId] the active isolate after a protocol handshake. */
   private async adopt(isolateId: string, generation: number): Promise<void> {
     if (this.isolateId === isolateId && this.state === 'connected') return;
@@ -287,6 +308,8 @@ export class ConnectionManager {
         return;
       }
       this.status = status;
+      this.appPackage = (await this.readAppPackage(isolateId)) ?? this.appPackage;
+      if (generation !== this.generation || this.isolateId !== isolateId) return;
       this.setState('connected', `${this.target?.label ?? 'App'} · ${status.mode}`);
       this.databasesEmitter.fire();
     } catch (error) {

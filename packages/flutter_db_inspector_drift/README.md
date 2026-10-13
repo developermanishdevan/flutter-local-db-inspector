@@ -12,8 +12,8 @@ inspector never opens a second handle on the file.
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_drift: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_drift: ^2.0.0
 ```
 
 ## Register
