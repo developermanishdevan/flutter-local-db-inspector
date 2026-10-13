@@ -100,6 +100,8 @@ export type WebviewRequest =
   | { op: 'export' }
   | { op: 'stats' }
   | { op: 'openTable'; table: string }
+  /** The database's tables / collections / boxes (table header "switch table" picker). */
+  | { op: 'listTables' }
   | { op: 'saveQuery'; sql: string }
   /**
    * Opens the database's SQL console (table toolbar "Query"). [sql] is a

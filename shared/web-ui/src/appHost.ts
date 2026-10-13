@@ -188,6 +188,8 @@ export function viewHost(
       case 'openTable':
         shell.open({ view: 'table', databaseId: d.id, table: req.table, tab: 'data' });
         return {};
+      case 'listTables':
+        return protocol(async () => (await client.schema(d.id)).entities);
       case 'openSql':
         shell.open({ view: 'sql', databaseId: d.id, sql: req.sql, suggest: true });
         return {};
