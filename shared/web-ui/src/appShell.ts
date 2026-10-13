@@ -3,9 +3,9 @@ import { dataModelLabel, engineLabel, entityGroupLabel, entityIcon, recordNoun }
 import type { DatabaseDescriptor, EntityKind, EntitySummary, InspectorStatus, SchemaOverview } from '@protocol/types';
 import { formatCount, relativeTime } from '@protocol/values';
 import type { HistoryEntry, SavedQuery } from '@services/queryStore';
-import { exportTable, client, queries, settings, viewHost, type ShellCallbacks } from './appHost';
+import { exportTable, client, queries, savedQueries, settings, viewHost, type ShellCallbacks } from './appHost';
 import { confirmDialog } from './dialog';
-import { announce, append, button, clear, h, icon, showMenu, type MenuItem } from './dom';
+import { announce, append, button, clear, h, icon, modKey, showMenu, type MenuItem } from './dom';
 import { request } from './host';
 import { SqlView } from './sqlView';
 import { StatsView } from './statsView';
@@ -73,6 +73,17 @@ export class AppShell implements ShellCallbacks {
     settings.historyLimit = init.historyLimit ?? 100;
     if (init.theme) this.setTheme(init.theme);
     queries.onDidChange(() => this.renderHistory());
+    savedQueries.onDidChange(() => this.renderHistory());
+    void this.refreshSaved();
+  }
+
+  /** Re-reads saved queries from the host (they are kept per app). */
+  private async refreshSaved(): Promise<void> {
+    try {
+      await savedQueries.refresh();
+    } catch (error) {
+      this.notify(`Could not load saved queries: ${error instanceof Error ? error.message : String(error)}`, 'warning');
+    }
   }
 
   mount(app: HTMLElement): void {
@@ -129,7 +140,11 @@ export class AppShell implements ShellCallbacks {
       else if (tab.view instanceof SqlView) tab.view.setConnection(state);
     }
     this.renderFooter();
-    if (state === 'connected' && was !== 'connected') void this.reloadEverything();
+    if (state === 'connected' && was !== 'connected') {
+      void this.reloadEverything();
+      // Another app (package) may be connected now.
+      void this.refreshSaved();
+    }
     if (state !== 'connected') this.renderTree();
   }
 
@@ -757,14 +772,28 @@ export class AppShell implements ShellCallbacks {
       const panel = tab.history;
       panel.hidden = !this.historyOpen;
       if (tab.key !== this.activeKey || !this.historyOpen) continue;
-      const db = this.databases.find((d) => d.id === tab.databaseId);
       const view = tab.view;
       clear(panel);
-      const saved = queries.saved.filter((q) => !q.databaseType || q.databaseType === db?.type);
+      const app = savedQueries.app;
+      const saved = savedQueries.current;
       const history = queries.history.filter((e) => e.databaseId === tab.databaseId);
-      panel.append(h('h3', {}, 'Saved queries'));
-      if (!saved.length) panel.append(h('p', { class: 'muted' }, 'None yet — save one from the editor.'));
-      for (const q of saved) panel.append(this.queryItem(q.name, q.sql, view, undefined, () => void this.deleteSaved(q)));
+      panel.append(h('h3', { title: app ? `Kept for the app "${app}" until you delete them` : undefined }, 'Saved queries'));
+      if (app) panel.append(h('p', { class: 'muted saved-app' }, icon('package'), ` ${app}`));
+      if (!saved.length) panel.append(h('p', { class: 'muted' }, `None yet — save one from the editor (${modKey}S).`));
+      for (const q of saved) panel.append(this.savedItem(app ?? '', q, view));
+      const others = savedQueries.others;
+      if (others.length) {
+        const details = h(
+          'details',
+          { class: 'saved-others' },
+          h('summary', {}, `Other apps (${others.reduce((n, g) => n + g.queries.length, 0)})`),
+        );
+        for (const g of others) {
+          details.append(h('div', { class: 'muted saved-app' }, icon('package'), ` ${g.app}`));
+          for (const q of g.queries) details.append(this.savedItem(g.app, q, view));
+        }
+        panel.append(details);
+      }
       panel.append(
         h(
           'div',
@@ -775,14 +804,30 @@ export class AppShell implements ShellCallbacks {
       );
       if (settings.historyLimit <= 0) panel.append(h('p', { class: 'muted' }, 'History is turned off.'));
       else if (!history.length) panel.append(h('p', { class: 'muted' }, 'Queries you run appear here.'));
-      for (const e of history) panel.append(this.queryItem(undefined, e.sql, view, e));
+      for (const e of history) {
+        panel.append(
+          this.queryItem(undefined, e.sql, view, e, [
+            button('Save', () => void this.saveFromHistory(tab.databaseId, e.sql), { icon: 'star-empty', iconOnly: true, title: 'Save query' }),
+          ]),
+        );
+      }
     }
   }
 
-  private queryItem(name: string | undefined, sql: string, view: SqlView, entry?: HistoryEntry, onDelete?: () => void): HTMLElement {
+  private savedItem(app: string, q: SavedQuery, view: SqlView): HTMLElement {
+    return this.queryItem(q.name, q.sql, view, undefined, [
+      button('Delete', () => void this.deleteSaved(app, q), { icon: 'trash', iconOnly: true, title: 'Delete saved query' }),
+    ]);
+  }
+
+  /** One saved or history query: click loads it, double-click / Enter / ▶ runs it. */
+  private queryItem(name: string | undefined, sql: string, view: SqlView, entry?: HistoryEntry, actions: HTMLElement[] = []): HTMLElement {
     const meta = entry
       ? `${relativeTime(entry.at)}${entry.rowCount !== undefined ? ` · ${formatCount(entry.rowCount)} rows` : ''}${entry.elapsedMs !== undefined ? ` · ${entry.elapsedMs} ms` : ''}`
       : undefined;
+    const run = button('Run', () => view.setSql(sql, true), { icon: 'play', iconOnly: true, title: 'Run' });
+    // The item's own click (load into the editor) must not also fire for its buttons.
+    for (const b of [run, ...actions]) b.addEventListener('click', (e) => e.stopPropagation());
     return h(
       'div',
       {
@@ -793,7 +838,7 @@ export class AppShell implements ShellCallbacks {
           click: () => view.setSql(sql, false),
           dblclick: () => view.setSql(sql, true),
           keydown: (e) => {
-            if (e.key === 'Enter') view.setSql(sql, true);
+            if (e.key === 'Enter' && e.target === e.currentTarget) view.setSql(sql, true);
           },
         },
       },
@@ -802,16 +847,26 @@ export class AppShell implements ShellCallbacks {
         { class: 'history-line' },
         entry ? icon(entry.ok ? 'pass' : 'error') : icon('bookmark'),
         h('span', { class: 'history-sql' }, name ?? sql.replace(/\s+/g, ' ')),
-        button('Run', () => view.setSql(sql, true), { icon: 'play', iconOnly: true, title: 'Run' }),
-        onDelete ? button('Delete', onDelete, { icon: 'trash', iconOnly: true, title: 'Delete saved query' }) : null,
+        run,
+        ...actions,
       ),
       meta ? h('div', { class: 'history-meta muted' }, meta) : name ? h('div', { class: 'history-meta muted mono' }, sql.replace(/\s+/g, ' ')) : null,
     );
   }
 
-  private async deleteSaved(q: SavedQuery): Promise<void> {
-    if (await confirmDialog({ title: `Delete saved query "${q.name}"?`, code: q.sql, okLabel: 'Delete', danger: true })) {
-      await queries.deleteSaved(q.id);
+  private async saveFromHistory(databaseId: string, sql: string): Promise<void> {
+    const db = this.databases.find((d) => d.id === databaseId);
+    if (!db) return;
+    await viewHost(`save:${db.id}`, () => db, undefined, undefined, this).request({ op: 'saveQuery', sql });
+  }
+
+  private async deleteSaved(app: string, q: SavedQuery): Promise<void> {
+    if (await confirmDialog({ title: `Delete saved query "${q.name}"?`, message: `App: ${app}`, code: q.sql, okLabel: 'Delete', danger: true })) {
+      try {
+        await savedQueries.delete(app, q.id);
+      } catch (error) {
+        this.notify(`Could not delete "${q.name}": ${error instanceof Error ? error.message : String(error)}`, 'error');
+      }
     }
   }
 

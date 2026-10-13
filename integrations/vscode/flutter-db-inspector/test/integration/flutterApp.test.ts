@@ -119,6 +119,10 @@ describe('real Flutter app', { skip: device ? false : 'set FDI_FLUTTER_DEVICE to
     await app?.stop();
   });
 
+  test('reads the app package name (saved queries are kept per app)', () => {
+    assert.equal(manager.snapshot.appPackage, 'sqlite_example');
+  });
+
   test('lists every engine with its own data model', async () => {
     const list = await databases(client, 3);
     const byId = Object.fromEntries(list.map((d) => [d.id, d]));

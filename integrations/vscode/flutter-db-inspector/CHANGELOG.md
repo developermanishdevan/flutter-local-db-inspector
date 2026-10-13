@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0
+
+- **Saved queries are kept per app.** Each saved query belongs to the connected app's Dart package name (the `name:` in its `pubspec.yaml`, read from the running app; no code change needed). They are stored in VS Code's global state, so they stay across workspaces and restarts until you delete them. The Queries view shows a **Saved · <app>** group per app: the connected app's first and expanded, other apps' still listed.
+- Saving under an existing name replaces that query instead of adding a duplicate. Saving asks for a name for the current app and confirms when done.
+- Saved queries have inline **Run Again** and **Delete** buttons; deleting asks for confirmation.
+- Saved queries from 1.x (kept per workspace) move to the first app you connect to.
+- Works with `flutter_db_inspector` 2.0.0: the runtime, protocol and DevTools extension are one package, and connectors are added per database.
+
 ## 1.0.3
 
 - Table view: new **Tables** button next to the table name. It opens a search box over the database's other tables, views, collections and boxes (with row counts); pick one to open it in a new tab. The current table stays open, and a table that is already open is brought to the front instead of opened twice.

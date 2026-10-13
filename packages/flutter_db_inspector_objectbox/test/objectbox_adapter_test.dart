@@ -4,7 +4,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_objectbox/flutter_db_inspector_objectbox.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:test/test.dart';

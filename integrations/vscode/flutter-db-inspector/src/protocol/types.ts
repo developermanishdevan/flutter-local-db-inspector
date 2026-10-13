@@ -1,7 +1,7 @@
 /**
  * Wire types of the Flutter DB Inspector protocol (v1).
  *
- * Mirrors `flutter_db_inspector_protocol` (Dart). Unknown enum values and
+ * Mirrors `package:flutter_db_inspector/protocol.dart` (Dart). Unknown enum values and
  * extra fields from newer runtimes must be tolerated, never rejected.
  */
 

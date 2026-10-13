@@ -9,12 +9,12 @@ It also powers the Drift adapter.
 
 ## Install
 
-Included in `flutter_db_inspector`. To use it on its own:
+Add it next to `flutter_db_inspector`:
 
 ```yaml
 dependencies:
-  flutter_db_inspector_core: ^1.0.0
-  flutter_db_inspector_sqlite: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_sqlite: ^2.0.0
 ```
 
 ## Register

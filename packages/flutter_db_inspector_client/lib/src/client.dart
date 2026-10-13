@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_protocol/flutter_db_inspector_protocol.dart';
+import 'package:flutter_db_inspector/protocol.dart';
 
 import 'connection.dart';
 import 'exception.dart';

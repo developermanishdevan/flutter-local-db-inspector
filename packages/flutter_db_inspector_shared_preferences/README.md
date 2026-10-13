@@ -9,8 +9,8 @@ Supports the legacy `SharedPreferences` API, `SharedPreferencesAsync` and
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_shared_preferences: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_shared_preferences: ^2.0.0
 ```
 
 ## Register

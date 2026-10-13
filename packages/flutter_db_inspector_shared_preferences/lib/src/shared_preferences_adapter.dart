@@ -1,4 +1,4 @@
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'shared_preferences_store.dart';

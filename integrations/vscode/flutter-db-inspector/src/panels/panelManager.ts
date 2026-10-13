@@ -7,7 +7,7 @@ import type { ConnectionManager } from '../connection/connectionManager';
 import { engineLabel, recordNoun } from '../providers/labels';
 import { ErrorCodes, InspectorError, type DatabaseDescriptor } from '../protocol/types';
 import type { InspectorClient } from '../services/inspectorClient';
-import type { QueryStore } from '../services/queryStore';
+import { UNKNOWN_APP, type QueryStore } from '../services/queryStore';
 import type { FullValue, HostMessage, InitMessage, TableTab, WebviewMessage, WebviewRequest } from './messages';
 
 interface PanelContext {
@@ -237,13 +237,16 @@ export class PanelManager implements vscode.Disposable {
       case 'listTables':
         return (await this.client.schema(db.id)).entities;
       case 'saveQuery': {
+        const app = this.manager.snapshot.appPackage ?? UNKNOWN_APP;
         const name = await vscode.window.showInputBox({
-          title: 'Save Query',
-          prompt: 'Name for this query',
+          title: `Save Query for ${app}`,
+          prompt: 'Name for this query (an existing query with this name is replaced)',
           value: request.sql.replace(/\s+/g, ' ').trim().slice(0, 40),
+          validateInput: (v) => (v.trim() ? undefined : 'Enter a name'),
         });
-        if (!name) return { cancelled: true };
-        await this.queries.save(name, request.sql, db.type);
+        if (!name?.trim()) return { cancelled: true };
+        await this.queries.save(app, name, request.sql, db.type);
+        void vscode.window.showInformationMessage(`Saved query "${name.trim()}" for ${app}.`);
         return {};
       }
       default:

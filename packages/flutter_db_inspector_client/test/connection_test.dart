@@ -67,6 +67,7 @@ void main() {
     expect(s.isolateId, 'isolates/2');
     expect(s.status!.protocolVersion, 1);
     expect(s.message, 'demo · fullAccess');
+    expect(s.appPackage, 'demo_app');
     expect(states.first, InspectorConnectionState.connecting);
     await databases.timeout(const Duration(seconds: 1));
     expect(vm.calls, [Methods.inspectorStatus]);
@@ -231,9 +232,28 @@ void main() {
     await connection.disconnect();
     expect(connection.snapshot, isA<ConnectionSnapshot>());
     expect(connection.snapshot.state, InspectorConnectionState.disconnected);
+    expect(connection.snapshot.appPackage, 'demo_app', reason: 'kept');
     vm.registerExtension('isolates/2');
     await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(connection.snapshot.state, InspectorConnectionState.disconnected);
+  });
+
+  test('appPackage is reset on attach, unknown without a root library',
+      () async {
+    vm.addIsolate('isolates/1');
+    await connection.attach(vm.service);
+    await _waitFor(connection, (s) => s.isConnected);
+    expect(connection.snapshot.appPackage, 'demo_app');
+
+    final other = FakeVm(handler: _databases)
+      ..rootLibUri = null
+      ..addIsolate('isolates/9');
+    await connection.attach(other.service);
+    final s = await _waitFor(connection, (s) => s.isConnected);
+    expect(s.isolateId, 'isolates/9');
+    expect(s.appPackage, isNull, reason: 'not the previous app');
+    await connection.disconnect();
+    await other.close();
   });
 
   test('vmServiceWebSocketUri normalizes printed URIs', () {

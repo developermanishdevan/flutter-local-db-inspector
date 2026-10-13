@@ -53,6 +53,11 @@ data class ConnectionSnapshot(
     val targetLabel: String? = null,
     val isolateId: String? = null,
     val status: InspectorStatus? = null,
+    /**
+     * The app's Dart package name (see [appPackageOf]); saved queries are kept
+     * per app. Kept after the app stops, until the next [ConnectionManager.connect].
+     */
+    val appPackage: String? = null,
     /** Human readable explanation for `connecting`, `reconnecting` and `error`. */
     val message: String? = null,
 )
@@ -100,6 +105,7 @@ class ConnectionManager(
     private var target: ConnectionTarget? = null
     private var isolateId: String? = null
     private var status: InspectorStatus? = null
+    private var appPackage: String? = null
     private var state = ConnectionState.DISCONNECTED
     private var message: String? = null
     private var generation = 0
@@ -135,7 +141,7 @@ class ConnectionManager(
     }
 
     private fun updateSnapshot() {
-        snapshot = ConnectionSnapshot(state, target?.id, target?.label, isolateId, status, message)
+        snapshot = ConnectionSnapshot(state, target?.id, target?.label, isolateId, status, appPackage, message)
     }
 
     private fun setState(newState: ConnectionState, newMessage: String? = null) {
@@ -163,6 +169,7 @@ class ConnectionManager(
         teardown()
         val gen = ++generation
         this@ConnectionManager.target = target
+        appPackage = null
         setState(ConnectionState.CONNECTING, "Connecting to ${target.label}…")
 
         val created = try {
@@ -312,6 +319,8 @@ class ConnectionManager(
                 return
             }
             this.status = status
+            appPackage = readAppPackage(id) ?: appPackage
+            if (gen != generation || isolateId != id) return
             setState(ConnectionState.CONNECTED, "${target?.label ?: "App"} · ${status.mode}")
             fireDatabasesChanged()
         } catch (e: CancellationException) {
@@ -326,6 +335,23 @@ class ConnectionManager(
             log("handshake failed: ${errorMessage(e)}")
             setState(ConnectionState.RECONNECTING, "Waiting for the app…")
             startRescan(gen)
+        }
+    }
+
+    /** The app's package name from the isolate's root library; null (and logged) when unavailable. */
+    private suspend fun readAppPackage(isolate: String): String? {
+        val transport = transport ?: return null
+        return try {
+            val info = transport.call("getIsolate", Json.obj("isolateId" to isolate), options.requestTimeoutMs).asObjectOrEmpty()
+            val rootLib = info.get("rootLib")?.asObjectOrEmpty()?.get("uri")?.takeIf { it.isJsonPrimitive }?.asString
+            val libraries = info.get("libraries")?.takeIf { it.isJsonArray }?.asJsonArray
+                ?.mapNotNull { it.asObjectOrEmpty().get("uri")?.takeIf { u -> u.isJsonPrimitive }?.asString }.orEmpty()
+            appPackageOf(rootLib, libraries)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log("could not read the app's package name: ${errorMessage(e)}")
+            null
         }
     }
 

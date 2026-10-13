@@ -2,7 +2,7 @@ name: flutter_db_inspector_hive
 description: >-
   Hive (hive_ce) adapter for Flutter DB Inspector. Inspect and edit open Hive
   boxes and lazy boxes while your app runs.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
 repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_hive
 issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
@@ -16,7 +16,7 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
-  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector: ^2.0.0
   hive_ce: ^2.11.0
 
 dev_dependencies:

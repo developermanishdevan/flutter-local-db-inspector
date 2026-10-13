@@ -10,8 +10,7 @@ ALL=false
 [[ "${1:-}" == "--all" ]] && ALL=true
 
 dart_packages=(
-  flutter_db_inspector_protocol
-  flutter_db_inspector_core
+  flutter_db_inspector
   flutter_db_inspector_sqlite
   flutter_db_inspector_drift
   flutter_db_inspector_sembast
@@ -28,7 +27,6 @@ flutter_packages=(
   flutter_db_inspector_secure_storage
   flutter_db_inspector_get_storage
   flutter_db_inspector_devtools
-  flutter_db_inspector
 )
 
 run() { echo "▶ $*"; "$@"; }

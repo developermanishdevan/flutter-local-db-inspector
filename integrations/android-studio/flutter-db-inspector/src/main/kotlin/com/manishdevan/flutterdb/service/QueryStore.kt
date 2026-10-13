@@ -31,12 +31,14 @@ data class SavedQuery(
     /** Engine type the query was written for, e.g. `sqlite`. */
     var databaseType: String? = null,
     var createdAt: Long = 0,
+    var updatedAt: Long? = null,
 )
 
 class QueryStoreState {
     @XCollection(style = XCollection.Style.v2)
     var history: MutableList<HistoryEntry> = mutableListOf()
 
+    /** 1.x saved queries, not tied to an app; moved to [SavedQueryStore] on the first connection. */
     @XCollection(style = XCollection.Style.v2)
     var saved: MutableList<SavedQuery> = mutableListOf()
 
@@ -46,8 +48,9 @@ class QueryStoreState {
 }
 
 /**
- * Query history and saved queries, stored by the IDE in the project's
+ * Query history and SQL console drafts, stored by the IDE in the project's
  * workspace file — never inside the app's database. A port of `queryStore.ts`.
+ * Saved queries live per app in the application-level [SavedQueryStore].
  */
 @Service(Service.Level.PROJECT)
 @State(name = "FlutterDbInspectorQueries", storages = [Storage(StoragePathMacros.WORKSPACE_FILE)])
@@ -72,8 +75,6 @@ class QueryStore : PersistentStateComponent<QueryStoreState> {
     private fun changed() = listeners.forEach { it() }
 
     val history: List<HistoryEntry> @Synchronized get() = state.history.toList()
-
-    val saved: List<SavedQuery> @Synchronized get() = state.saved.toList()
 
     @Synchronized
     fun draft(databaseId: String): String? = state.drafts[databaseId]
@@ -114,18 +115,15 @@ class QueryStore : PersistentStateComponent<QueryStoreState> {
         changed()
     }
 
-    fun save(name: String, sql: String, databaseType: String? = null, now: Long = System.currentTimeMillis()): SavedQuery {
-        val query = SavedQuery(newId(), name, sql.trim(), databaseType, now)
-        synchronized(this) {
-            state.saved = (state.saved + query).sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }).toMutableList()
-        }
-        changed()
-        return query
-    }
+    /** 1.x saved queries of this project, not tied to an app. */
+    val legacySaved: List<SavedQuery> @Synchronized get() = state.saved.toList()
 
-    fun deleteSaved(id: String) {
-        synchronized(this) { state.saved.removeAll { it.id == id } }
-        changed()
+    /** Returns the 1.x saved queries and forgets them (see [SavedQueryStore.adoptLegacySaved]). */
+    @Synchronized
+    fun takeLegacySaved(): List<SavedQuery> {
+        val legacy = state.saved.toList()
+        state.saved.clear()
+        return legacy
     }
 
     private fun newId(): String = UUID.randomUUID().toString().substring(0, 13)

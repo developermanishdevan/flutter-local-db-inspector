@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:async/async.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_drift/flutter_db_inspector_drift.dart';
 import 'package:test/test.dart';
 

@@ -16,8 +16,8 @@ works from `realm.schema` and Realm's dynamic API.
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
-  flutter_db_inspector_realm: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_realm: ^2.0.0
 ```
 
 The adapter depends on `realm_dart`, which the Flutter `realm` package itself

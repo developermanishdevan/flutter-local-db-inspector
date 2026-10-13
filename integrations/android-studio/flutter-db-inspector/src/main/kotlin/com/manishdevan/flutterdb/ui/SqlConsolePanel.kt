@@ -25,6 +25,7 @@ import com.manishdevan.flutterdb.protocol.SqlResult
 import com.manishdevan.flutterdb.protocol.Values
 import com.manishdevan.flutterdb.protocol.WireValue
 import com.manishdevan.flutterdb.service.InspectorService
+import com.manishdevan.flutterdb.service.SavedQuery
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import java.awt.BorderLayout
@@ -259,7 +260,7 @@ class SqlConsolePanel(
         val sql = selectedSql()
         if (sql.isEmpty()) return
         val name = Messages.showInputDialog(project, "Name for this query:", "Save Query", null, sql.replace(Regex("\\s+"), " ").take(40), null)
-        if (!name.isNullOrBlank()) service.queries.save(name.trim(), sql, database.type)
+        if (!name.isNullOrBlank()) service.savedQueries.save(service.currentApp, name.trim(), sql, database.type)
     }
 
     private fun showHistory(e: AnActionEvent) {
@@ -279,19 +280,37 @@ class SqlConsolePanel(
         showGroupPopup("Query History", group, e)
     }
 
+    /** Saved queries of the connected app, then the other apps' in submenus. */
     private fun showSaved(e: AnActionEvent) {
         val group = DefaultActionGroup()
-        val saved = service.queries.saved
-        if (saved.isEmpty()) group.add(action("No saved queries (Ctrl/Cmd+S saves one)", enabled = { false }) {})
-        for (query in saved) {
-            val sub = DefaultActionGroup(query.name, true)
-            sub.add(action("Open") { setSql(query.sql, run = false) })
-            sub.add(action("Run", AllIcons.Actions.Execute, enabled = { connected }) { setSql(query.sql, run = true) })
-            sub.add(action("Copy SQL", AllIcons.Actions.Copy) { copyToClipboard(query.sql) })
-            sub.add(action("Delete", AllIcons.General.Remove) { service.queries.deleteSaved(query.id) })
-            group.add(sub)
+        val app = service.currentApp
+        val groups = service.savedQueries.savedGroups(app)
+        val current = groups.firstOrNull { it.app == app }?.queries.orEmpty()
+        if (current.isEmpty()) group.add(action("No saved queries for $app (Ctrl/Cmd+S saves one)", enabled = { false }) {})
+        current.forEach { group.add(savedQueryActions(app, it)) }
+        val others = groups.filter { it.app != app }
+        if (others.isNotEmpty()) {
+            group.addSeparator("Other apps")
+            for (other in others) {
+                val sub = DefaultActionGroup("${other.app} (${other.queries.size})", true)
+                other.queries.forEach { sub.add(savedQueryActions(other.app, it)) }
+                group.add(sub)
+            }
         }
-        showGroupPopup("Saved Queries", group, e)
+        showGroupPopup("Saved Queries · $app", group, e)
+    }
+
+    private fun savedQueryActions(app: String, query: SavedQuery): DefaultActionGroup {
+        val sub = DefaultActionGroup(query.name, true)
+        sub.add(action("Open") { setSql(query.sql, run = false) })
+        sub.add(action("Run", AllIcons.Actions.Execute, enabled = { connected }) { setSql(query.sql, run = true) })
+        sub.add(action("Copy SQL", AllIcons.Actions.Copy) { copyToClipboard(query.sql) })
+        sub.add(action("Delete", AllIcons.General.Remove) {
+            if (Messages.showYesNoDialog(project, "Delete saved query \"${query.name}\" of $app?", "Delete Saved Query", null) == Messages.YES) {
+                service.savedQueries.deleteSaved(app, query.id)
+            }
+        })
+        return sub
     }
 
     private fun showGroupPopup(title: String, group: DefaultActionGroup, e: AnActionEvent) {

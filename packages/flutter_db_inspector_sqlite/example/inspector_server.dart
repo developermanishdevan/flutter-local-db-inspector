@@ -14,7 +14,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 

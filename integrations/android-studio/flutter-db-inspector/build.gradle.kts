@@ -147,6 +147,11 @@ intellijPlatform {
         name = "Flutter DB Inspector"
         version = project.version.toString()
         changeNotes = """
+            <b>2.0.0</b>
+            <ul>
+              <li>Saved queries are kept per app (Dart package name) until you delete them; re-run or delete them from the SQL console. They live in the IDE's settings, so they survive restarts and are shared by all projects; saved queries of 1.x move to the first app you connect to.</li>
+              <li>Works with <code>flutter_db_inspector</code> 2.0.0 (runtime, protocol and DevTools extension in one package; connectors opt-in).</li>
+            </ul>
             <b>1.0.3</b>
             <ul>
               <li>Table view: new <b>Tables</b> button next to the table name. Search the database's other tables, views, collections and boxes and open one in a new tab; the current table stays open.</li>

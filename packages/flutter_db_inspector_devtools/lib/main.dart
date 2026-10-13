@@ -7,6 +7,9 @@ import 'pages/home_page.dart';
 import 'services/connection_manager.dart';
 import 'services/host.dart';
 import 'services/inspector_controller.dart';
+import 'services/saved_query_dtd.dart';
+import 'services/saved_query_local.dart';
+import 'services/saved_query_store.dart';
 import 'web_ui/web_ui_view.dart';
 
 /// Flutter DB Inspector DevTools extension.
@@ -32,6 +35,16 @@ class _FlutterDbInspectorExtensionState
   InspectorController? _controller;
   InspectorUi _ui = InspectorUi.load();
   final _host = _DevToolsHost();
+
+  /// In the project's `.dart_tool/` through the Dart Tooling Daemon, else in
+  /// the browser's storage.
+  late final _savedQueries = SavedQueryStore(
+    [
+      DtdSavedQueryBackend(DtdManagerFiles(dtdManager)),
+      createLocalSavedQueryBackend(),
+    ],
+    log: debugPrint,
+  );
 
   @override
   void initState() {
@@ -79,6 +92,7 @@ class _FlutterDbInspectorExtensionState
                   connection: _connection,
                   darkTheme: extensionManager.darkThemeEnabled,
                   services: _host,
+                  savedQueries: _savedQueries,
                   onUseClassic: () => _use(InspectorUi.classic),
                 ),
               InspectorUi.classic => HomePage(

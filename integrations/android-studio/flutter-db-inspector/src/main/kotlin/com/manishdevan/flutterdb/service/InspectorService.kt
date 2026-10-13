@@ -66,6 +66,7 @@ class InspectorService(private val project: Project, val scope: CoroutineScope) 
     val client = InspectorClient { method, params -> manager.request(method, params) }
     val exporter = Exporter(client)
     val queries: QueryStore get() = project.getService(QueryStore::class.java)
+    val savedQueries: SavedQueryStore get() = SavedQueryStore.getInstance()
 
     @Volatile
     var model: DatabasesModel = DatabasesModel.EMPTY
@@ -87,6 +88,7 @@ class InspectorService(private val project: Project, val scope: CoroutineScope) 
                     onEdt { listeners.forEach { it.databasesChanged(DatabasesModel.EMPTY, reloadViews = false) } }
                 }
             }
+            snapshot.appPackage?.let(::adoptLegacySaved)
             onEdt { listeners.forEach { it.connectionChanged(snapshot) } }
         }
         manager.addDatabasesListener { reloadDatabases(reloadViews = true) }
@@ -95,6 +97,20 @@ class InspectorService(private val project: Project, val scope: CoroutineScope) 
     val snapshot: ConnectionSnapshot get() = manager.snapshot
 
     val isConnected: Boolean get() = manager.isConnected
+
+    /**
+     * The connected (or last connected) app's Dart package name, under which
+     * its saved queries are kept; [SavedQueryStore.UNKNOWN_APP] when the VM did not tell.
+     */
+    val currentApp: String get() = snapshot.appPackage ?: SavedQueryStore.UNKNOWN_APP
+
+    /** Moves this project's 1.x saved queries (not tied to an app) to [app], once. */
+    private fun adoptLegacySaved(app: String) {
+        if (project.isDisposed || queries.legacySaved.isEmpty()) return
+        val legacy = queries.takeLegacySaved()
+        savedQueries.adoptLegacySaved(app, legacy)
+        LOG.info("moved ${legacy.size} saved queries of this project to app '$app'")
+    }
 
     /** Adds [listener] until [parent] is disposed. */
     fun addListener(listener: InspectorListener, parent: Disposable) {

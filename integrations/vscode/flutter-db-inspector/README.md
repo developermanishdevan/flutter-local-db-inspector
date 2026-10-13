@@ -24,11 +24,13 @@ It is also on [Open VSX](https://open-vsx.org/extension/developer-manishdevan/fl
 
 ## Setup
 
-1. Add the one package to the app (every connector is included):
+1. Add `flutter_db_inspector` plus the connector for each storage the app
+   uses:
 
    ```yaml
    dependencies:
-     flutter_db_inspector: ^1.0.0
+     flutter_db_inspector: ^2.0.0
+     flutter_db_inspector_sqlite: ^2.0.0
    ```
 
 2. Enable the inspector with your databases:
@@ -71,7 +73,7 @@ Android Studio. It must only run in debug builds.
    or creates the instance. Show me this list before changing anything.
 
 2. ADD DEPENDENCIES (flutter pub add), only for what you found:
-   - flutter_db_inspector_core
+   - flutter_db_inspector (runtime, protocol and the DevTools tab)
    - plus the matching connector for each storage:
      sqflite / sqflite_common_ffi / floor -> flutter_db_inspector_sqlite
      drift              -> flutter_db_inspector_drift
@@ -83,9 +85,8 @@ Android Studio. It must only run in debug builds.
      shared_preferences -> flutter_db_inspector_shared_preferences
      flutter_secure_storage -> flutter_db_inspector_secure_storage
      get_storage        -> flutter_db_inspector_get_storage
-   Use core + connectors, NOT the all-in-one flutter_db_inspector package: it
-   pulls in every engine (the Isar/ObjectBox/Realm ones use dart:ffi and break
-   Flutter web) and can clash with build_runner / drift_dev.
+   Add only the connectors for storage the app actually uses; each one pulls
+   in its database's own dependencies.
    If the app uses the original `isar` package (not isar_community) or classic
    `hive` 2.x (not hive_ce), do not add that connector; tell me instead.
    If pub cannot resolve, stop and show me the error. Never change the
@@ -95,7 +96,7 @@ Android Studio. It must only run in debug builds.
    flavor mains), after WidgetsFlutterBinding.ensureInitialized() and before
    runApp():
      import 'package:flutter/foundation.dart';
-     import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+     import 'package:flutter_db_inspector/flutter_db_inspector.dart';
      DbInspector.initialize(enabled: kDebugMode);
 
 4. REGISTER EACH DATABASE right after the app opens it, in that same place
@@ -153,7 +154,7 @@ Review the agent's changes before you commit them.
 - **Schema**: columns, types, keys, foreign keys, indexes, triggers and the DDL.
 - **SQL console** (SQL databases): run statements with Ctrl/Cmd+Enter and see timing and row counts. Statements that modify data need confirmation.
 - **Run SQL files**: run the current `.sql` file or selection against the app with Ctrl/Cmd+Enter.
-- **Query history and saved queries**: stored in VS Code, never in your app.
+- **Query history and saved queries**: stored in VS Code, never in your app. Saved queries are kept per app (its Dart package name) until you delete them; run, load or delete them from the **Queries** view.
 - **Statistics**: database size, record counts and largest tables.
 - **Export**: a table or a whole database to JSON, CSV or SQL. Exports are streamed in pages, and masked columns are exported as `null`.
 - **Hot restart aware**: the extension reconnects automatically and reloads open views.

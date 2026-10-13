@@ -2,9 +2,7 @@
 # from this repository. Ignored when the package is published or used
 # as a dependency.
 dependency_overrides:
-  flutter_db_inspector_core:
-    path: ../flutter_db_inspector_core
-  flutter_db_inspector_protocol:
-    path: ../flutter_db_inspector_protocol
+  flutter_db_inspector:
+    path: ../flutter_db_inspector
   flutter_db_inspector_sqlite:
     path: ../flutter_db_inspector_sqlite

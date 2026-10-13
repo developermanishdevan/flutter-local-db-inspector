@@ -20,6 +20,8 @@ export interface FlutterDbInspectorApi {
   readonly client: InspectorClient;
   readonly tree: DatabaseTreeProvider;
   readonly panels: PanelManager;
+  readonly queries: QueryStore;
+  readonly queriesTree: QueriesTreeProvider;
 }
 
 export function activate(context: vscode.ExtensionContext): FlutterDbInspectorApi {
@@ -32,7 +34,8 @@ export function activate(context: vscode.ExtensionContext): FlutterDbInspectorAp
     log,
   });
   const client = new InspectorClient(manager);
-  const queries = new QueryStore(context.workspaceState, () => config().get('historyLimit', 100));
+  // History per workspace; saved queries per app (Dart package name), kept until deleted.
+  const queries = new QueryStore(context.workspaceState, () => config().get('historyLimit', 100), context.globalState);
   const tree = new DatabaseTreeProvider(client, manager);
   const statusBar = new ConnectionStatusBar();
 
@@ -40,8 +43,9 @@ export function activate(context: vscode.ExtensionContext): FlutterDbInspectorAp
     treeDataProvider: tree,
     showCollapseAll: true,
   });
+  const queriesTree = new QueriesTreeProvider(queries, () => manager.snapshot.appPackage);
   const queriesView = vscode.window.createTreeView('flutterDbInspector.queries', {
-    treeDataProvider: new QueriesTreeProvider(queries),
+    treeDataProvider: queriesTree,
   });
 
   let refreshTimer: NodeJS.Timeout | undefined;
@@ -91,9 +95,16 @@ export function activate(context: vscode.ExtensionContext): FlutterDbInspectorAp
   };
 
   context.subscriptions.push(tree.onDidChangeTreeData(() => describeState()));
+  let lastApp: string | undefined;
   manager.onDidChangeState((s) => {
     describeState();
     if (s.state === 'disconnected' || s.state === 'error') void tree.refresh();
+    if (s.state === 'connected' && s.appPackage !== lastApp) {
+      lastApp = s.appPackage;
+      // 1.x saved queries were per workspace: they belong to the first app connected here.
+      if (s.appPackage) void queries.adoptLegacySaved(s.appPackage);
+      queriesTree.refresh();
+    }
   });
   // Fired after (re)connecting and when the app registers databases.
   manager.onDidChangeDatabases(() => void refresh());
@@ -117,7 +128,7 @@ export function activate(context: vscode.ExtensionContext): FlutterDbInspectorAp
     }),
   );
   describeState();
-  return { manager, client, tree, panels };
+  return { manager, client, tree, panels, queries, queriesTree };
 }
 
 export function deactivate(): void {}

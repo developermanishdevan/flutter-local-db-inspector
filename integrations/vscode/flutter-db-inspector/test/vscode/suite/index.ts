@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import type { FlutterDbInspectorApi } from '../../../src/extension';
 // Type-only: the extension runs from its esbuild bundle, so class identity differs.
 import type { DatabaseNode, EntityNode, GroupNode, TreeNode } from '../../../src/providers/databaseTree';
+import type { QueryNode } from '../../../src/providers/queriesTree';
 import { DemoServer } from '../../integration/demoServer';
 
 type Test = { name: string; fn: () => Promise<void> };
@@ -84,6 +85,37 @@ it('runs SQL through the console path', async () => {
   assert.deepEqual(read.rows, [[10000]]);
 });
 
+it('saves queries per app, re-runs them and keeps them until deleted', async () => {
+  const app = api.manager.snapshot.appPackage;
+  assert.equal(app, 'inspector_server');
+  const saved = await api.queries.save(app!, 'Order count', 'SELECT COUNT(*) AS n FROM orders', 'sqlite');
+  await api.queries.save(app!, 'order COUNT', 'SELECT COUNT(*) AS total FROM orders', 'sqlite');
+  assert.equal(api.queries.saved(app!).length, 1, 'same name replaces');
+
+  const groups = api.queriesTree.getChildren();
+  const group = groups.find((g) => g.kind === 'group' && g.label === 'Saved') as Extract<QueryNode, { label: 'Saved' }>;
+  assert.equal(group.app, app);
+  const groupItem = api.queriesTree.getTreeItem(group);
+  assert.equal(groupItem.label, `Saved · ${app}`);
+  assert.equal(groupItem.collapsibleState, vscode.TreeItemCollapsibleState.Expanded);
+  const [node] = api.queriesTree.getChildren(group);
+  assert.equal(api.queriesTree.getTreeItem(node).contextValue, 'query.saved');
+
+  // "Run Again" on the saved query: the SQL console opens on its database and runs it.
+  const before = api.panels.diagnostics('sql:app_database')?.requests ?? 0;
+  await vscode.commands.executeCommand('flutterDbInspector.query.run', node);
+  const after = await until('saved query ran', () => {
+    const d = api.panels.diagnostics('sql:app_database');
+    return d && d.requests > before ? d : undefined;
+  });
+  assert.deepEqual(after.errors, []);
+  await until('run recorded in history', () => api.queries.history.find((h) => h.sql === 'SELECT COUNT(*) AS total FROM orders'));
+
+  await api.queries.deleteSaved(app!, saved.id);
+  assert.deepEqual(api.queries.saved(app!), []);
+  await api.queries.save(app!, 'Kept', 'SELECT 1');
+});
+
 it('filters the tree by table name (and clears it)', async () => {
   api.tree.setFilter('ORD');
   const [db] = (await api.tree.getChildren()) as TreeNode[];
@@ -114,6 +146,9 @@ it('disconnects', async () => {
   await vscode.commands.executeCommand('flutterDbInspector.disconnect');
   assert.equal(api.manager.snapshot.state, 'disconnected');
   await until('tree cleared', () => (api.tree.current.length === 0 ? true : undefined));
+  // Saved queries stay listed for the app after it disconnects.
+  const groups = api.queriesTree.getChildren();
+  assert.ok(groups.some((g) => g.kind === 'group' && g.label === 'Saved' && g.app === 'inspector_server'));
 });
 
 /** Entry point called by the VS Code test runner. */

@@ -15,7 +15,7 @@ src/
   services/
     inspectorClient.ts         typed protocol client; the only way UI reaches the app
     exporter.ts                streamed JSON/CSV/SQL export
-    queryStore.ts              history and saved queries (workspace state)
+    queryStore.ts              history (workspace state); saved queries per app (global state)
   providers/                   database tree, queries tree, status bar
   panels/                      webview host; every write is confirmed here
 ```

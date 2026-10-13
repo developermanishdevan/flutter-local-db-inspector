@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter_db_inspector_protocol/flutter_db_inspector_protocol.dart';
+import 'package:flutter_db_inspector/protocol.dart';
 import 'package:vm_service/vm_service.dart';
 
+import 'app_package.dart';
 import 'connect_stub.dart' if (dart.library.io) 'connect_io.dart' as platform;
 import 'exception.dart';
 
@@ -29,6 +30,7 @@ final class ConnectionSnapshot {
     this.label,
     this.isolateId,
     this.status,
+    this.appPackage,
     this.message,
   });
 
@@ -45,6 +47,11 @@ final class ConnectionSnapshot {
 
   /// The handshake result, while connected.
   final InspectorStatus? status;
+
+  /// The app's Dart package name (see [appPackageOf]), read after the
+  /// handshake. Kept after a disconnect until the next [InspectorConnection.attach];
+  /// `null` while unknown. Saved queries are kept per app under this name.
+  final String? appPackage;
 
   /// Human readable explanation for `connecting`, `reconnecting` and `error`.
   final String? message;
@@ -147,6 +154,7 @@ class InspectorConnection implements InspectorRequestSender {
   String? _label;
   String? _isolateId;
   InspectorStatus? _status;
+  String? _appPackage;
   InspectorConnectionState _state = InspectorConnectionState.disconnected;
   String? _message;
   int _generation = 0;
@@ -168,6 +176,7 @@ class InspectorConnection implements InspectorRequestSender {
         label: _label,
         isolateId: _isolateId,
         status: _status,
+        appPackage: _appPackage,
         message: _message,
       );
 
@@ -210,6 +219,7 @@ class InspectorConnection implements InspectorRequestSender {
     _service = service;
     _ownsService = ownsService;
     _label = label;
+    _appPackage = null;
     _setState(InspectorConnectionState.connecting, 'Connecting to $label…');
 
     _subscriptions
@@ -384,6 +394,8 @@ class InspectorConnection implements InspectorRequestSender {
         return;
       }
       _status = status;
+      _appPackage = await _readAppPackage(isolateId) ?? _appPackage;
+      if (generation != _generation || _isolateId != isolateId) return;
       _setState(
         InspectorConnectionState.connected,
         '${_label ?? 'App'} · ${status.mode.name}',
@@ -406,6 +418,24 @@ class InspectorConnection implements InspectorRequestSender {
       _startRescan(generation);
     } finally {
       if (_handshaking == isolateId) _handshaking = null;
+    }
+  }
+
+  /// The app's package name from the isolate's root library; `null` when the
+  /// VM won't say.
+  Future<String?> _readAppPackage(String isolateId) async {
+    final service = _service;
+    if (service == null) return null;
+    try {
+      final isolate =
+          await service.getIsolate(isolateId).timeout(options.requestTimeout);
+      return appPackageOf(isolate.rootLib?.uri, [
+        for (final library in isolate.libraries ?? const <LibraryRef>[])
+          library.uri ?? '',
+      ]);
+    } on Object catch (e) {
+      _log("could not read the app's package name: $e");
+      return null;
     }
   }
 

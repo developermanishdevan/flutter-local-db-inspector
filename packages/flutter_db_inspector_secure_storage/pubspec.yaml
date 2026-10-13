@@ -2,7 +2,7 @@ name: flutter_db_inspector_secure_storage
 description: >-
   flutter_secure_storage adapter for Flutter DB Inspector. Lists secure storage
   keys with values masked by default.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/developermanishdevan/flutter-local-db-inspector
 repository: https://github.com/developermanishdevan/flutter-local-db-inspector/tree/main/packages/flutter_db_inspector_secure_storage
 issue_tracker: https://github.com/developermanishdevan/flutter-local-db-inspector/issues
@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_db_inspector_core: ^1.0.0
+  flutter_db_inspector: ^2.0.0
   flutter_secure_storage: ">=9.2.0 <11.0.0"
 
 dev_dependencies:

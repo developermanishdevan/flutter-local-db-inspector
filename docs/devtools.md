@@ -13,7 +13,7 @@ The extension uses the VM service connection DevTools already has. It never read
 
 ## Web UI and classic UI
 
-The extension shows the same UI as the Android Studio plugin: the shared web UI from [`shared/web-ui`](../shared/web-ui/README.md) (database tree, closeable data / schema / SQL / statistics tabs, value inspector, row form, export), loaded in an iframe at `web_ui/index.html` next to the extension. SQL history and saved queries are kept in the browser's `localStorage`.
+The extension shows the same UI as the Android Studio plugin: the shared web UI from [`shared/web-ui`](../shared/web-ui/README.md) (database tree, closeable data / schema / SQL / statistics tabs, value inspector, row form, export), loaded in an iframe at `web_ui/index.html` next to the extension. SQL history is kept in the browser's `localStorage`. Saved queries are kept per app (its Dart package name) until you delete them: in the app project's `.dart_tool/flutter_db_inspector/saved_queries.json` through the Dart Tooling Daemon when DevTools has one and the project is in its workspace, otherwise in the browser's `localStorage`.
 
 The original Flutter UI described below is still available: **Classic UI** at the bottom right switches to it (**Switch to the new UI** switches back), and the choice is remembered in `localStorage`. `?ui=classic` or `?ui=web` in the extension URL overrides it.
 
@@ -54,7 +54,7 @@ DevTools ── serviceManager (VmService) ──► ConnectionManager (services
 
 - Web UI: `web_ui/platform_web.dart` creates the iframe (`HtmlElementView`) and only accepts `message` events whose source is that iframe; `WebUiBridge` implements the app-mode host contract of [`shared/web-ui/README.md`](../shared/web-ui/README.md): `ready` → `init {view: 'app', host: 'devtools', pageSize: 50, theme}` + `connection`; connection changes, `databasesChanged` events and DevTools theme changes are forwarded; `call` goes to `InspectorConnection.request` (reads are retried after a hot restart), `copy` and `notify` go through DevTools (`extensionManager`), `saveFile` downloads the file from the extension page, and any other op is answered with `INVALID_REQUEST`.
 
-- `packages/flutter_db_inspector_client` is a pure Dart package (no Flutter): `InspectorConnection` is a port of the VS Code `ConnectionManager` built on `package:vm_service`; `InspectorClient` returns `flutter_db_inspector_protocol` models; `WireValue` / `WireValues` implement the display and input rules shared with the VS Code client. Any Dart tool can reuse it (`InspectorConnection.connectUri(uri)`).
+- `packages/flutter_db_inspector_client` is a pure Dart package (no Flutter): `InspectorConnection` is a port of the VS Code `ConnectionManager` built on `package:vm_service`; `InspectorClient` returns models from `package:flutter_db_inspector/protocol.dart`; `WireValue` / `WireValues` implement the display and input rules shared with the VS Code client. Any Dart tool can reuse it (`InspectorConnection.connectUri(uri)`).
 - `packages/flutter_db_inspector_devtools` is the extension's Flutter web app. Only `services/connection_manager.dart` sees the VM service; widgets use `InspectorClient` exclusively.
 - The built app lives in `packages/flutter_db_inspector/extension/devtools/build`, next to `config.yaml`, with the web UI in `build/web_ui/`. Both are committed; the copy in the source package (`web/web_ui/`) is generated and ignored by git.
 

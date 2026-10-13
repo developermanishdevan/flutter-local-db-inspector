@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:flutter_db_inspector_hive/flutter_db_inspector_hive.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:test/test.dart';

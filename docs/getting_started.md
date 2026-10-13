@@ -2,15 +2,34 @@
 
 ## 1. Add the package
 
-One package includes the runtime and every connector:
+Add `flutter_db_inspector` (runtime, protocol and the DevTools extension) and
+one connector package per storage your app uses:
 
 ```yaml
 dependencies:
-  flutter_db_inspector: ^1.0.0
+  flutter_db_inspector: ^2.0.0
+  flutter_db_inspector_sqlite: ^2.0.0
+  flutter_db_inspector_hive: ^2.0.0
 ```
 
-Until the packages are on pub.dev, depend on the GitHub repository. You still
-need only this one entry; the connectors are resolved through it:
+| Storage | Connector package | Adapter |
+|---|---|---|
+| sqflite / sqflite_common_ffi / Floor | `flutter_db_inspector_sqlite` | `SqliteAdapter(db)` |
+| Drift | `flutter_db_inspector_drift` | `DriftAdapter(db)` |
+| Isar (`isar_community`) | `flutter_db_inspector_isar` | `IsarAdapter(isar, schemas)` |
+| ObjectBox | `flutter_db_inspector_objectbox` | `ObjectBoxAdapter(store, collections)` |
+| Realm | `flutter_db_inspector_realm` | `RealmAdapter(realm)` |
+| Sembast | `flutter_db_inspector_sembast` | `SembastAdapter(db)` |
+| Hive (`hive_ce`) | `flutter_db_inspector_hive` | `HiveAdapter(boxes)` |
+| SharedPreferences | `flutter_db_inspector_shared_preferences` | `SharedPreferencesAdapter(prefs)` |
+| flutter_secure_storage | `flutter_db_inspector_secure_storage` | `SecureStorageAdapter(storage)` |
+| GetStorage | `flutter_db_inspector_get_storage` | `GetStorageAdapter(containers)` |
+
+Only add the connectors you need: each one brings in its database's own
+dependencies (native libraries, code generators).
+
+Until the packages are on pub.dev, depend on the GitHub repository, one entry
+per package:
 
 ```yaml
 dependencies:
@@ -18,14 +37,31 @@ dependencies:
     git:
       url: https://github.com/developermanishdevan/flutter-local-db-inspector.git
       path: packages/flutter_db_inspector
+  flutter_db_inspector_sqlite:
+    git:
+      url: https://github.com/developermanishdevan/flutter-local-db-inspector.git
+      path: packages/flutter_db_inspector_sqlite
 ```
 
-With a local clone, use `path: <path-to-repo>/packages/flutter_db_inspector` instead.
+Connectors that depend on `flutter_db_inspector` from pub.dev also need it
+overridden while you use git:
+
+```yaml
+dependency_overrides:
+  flutter_db_inspector:
+    git:
+      url: https://github.com/developermanishdevan/flutter-local-db-inspector.git
+      path: packages/flutter_db_inspector
+```
+
+With a local clone, use `path: <path-to-repo>/packages/<package>` instead.
 
 ## 2. Initialize with your databases
 
 ```dart
 import 'package:flutter_db_inspector/flutter_db_inspector.dart';
+import 'package:flutter_db_inspector_hive/flutter_db_inspector_hive.dart';
+import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

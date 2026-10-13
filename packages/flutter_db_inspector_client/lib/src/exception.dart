@@ -1,4 +1,4 @@
-import 'package:flutter_db_inspector_protocol/flutter_db_inspector_protocol.dart';
+import 'package:flutter_db_inspector/protocol.dart';
 
 /// Error codes produced by the client itself (never sent by the runtime).
 abstract final class ClientErrorCodes {

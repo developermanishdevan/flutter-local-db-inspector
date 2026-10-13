@@ -8,6 +8,8 @@ import com.manishdevan.flutterdb.protocol.Json
 import com.manishdevan.flutterdb.protocol.long
 import com.manishdevan.flutterdb.protocol.obj
 import com.manishdevan.flutterdb.protocol.str
+import com.manishdevan.flutterdb.service.SavedQuery
+import com.manishdevan.flutterdb.service.SavedQueryStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -29,6 +31,12 @@ interface WebUiHost {
     fun onReady()
 
     fun logError(message: String)
+
+    /** The connected (or last connected) app's Dart package name; null when unknown. */
+    fun currentApp(): String? = null
+
+    /** Where saved queries are kept per app; null leaves the `savedQueries.*` requests unsupported. */
+    val savedQueries: SavedQueryStore? get() = null
 }
 
 /**
@@ -91,6 +99,20 @@ class WebUiBridge(
                 host.notify(request.str("message") ?: throw invalid("notify: missing message"), request.str("level"))
                 WebUiMessages.ok(id, JsonObject())
             }
+            "savedQueries.list" -> WebUiMessages.ok(id, savedQueries(savedQueryStore(op)))
+            "savedQueries.save" -> {
+                val store = savedQueryStore(op)
+                val name = request.str("name")?.takeIf { it.isNotBlank() } ?: throw invalid("savedQueries.save: missing name")
+                val sql = request.str("sql")?.takeIf { it.isNotBlank() } ?: throw invalid("savedQueries.save: missing sql")
+                store.save(host.currentApp() ?: SavedQueryStore.UNKNOWN_APP, name, sql, request.str("databaseType"))
+                WebUiMessages.ok(id, savedQueries(store))
+            }
+            "savedQueries.delete" -> {
+                val store = savedQueryStore(op)
+                val app = request.str("app") ?: throw invalid("savedQueries.delete: missing app")
+                store.deleteSaved(app, request.str("id") ?: throw invalid("savedQueries.delete: missing id"))
+                WebUiMessages.ok(id, savedQueries(store))
+            }
             else -> throw invalid("Unsupported request: $op")
         }
     } catch (e: CancellationException) {
@@ -99,6 +121,23 @@ class WebUiBridge(
         WebUiMessages.error(id, e.code, e.message ?: e.code, e.details)
     } catch (e: Exception) {
         WebUiMessages.error(id, ErrorCodes.INTERNAL_ERROR, e.message ?: e.javaClass.simpleName)
+    }
+
+    private fun savedQueryStore(op: String): SavedQueryStore = host.savedQueries ?: throw invalid("Unsupported request: $op")
+
+    /** `SavedQueriesResult`: the current app (omitted when unknown) and every app's queries, the current app first. */
+    private fun savedQueries(store: SavedQueryStore): JsonObject {
+        val app = host.currentApp()
+        val groups = store.savedGroups(app ?: SavedQueryStore.UNKNOWN_APP)
+            .map { Json.obj("app" to it.app, "queries" to it.queries.map(::savedQueryJson)) }
+        return Json.obj("groups" to groups).apply { app?.let { addProperty("app", it) } }
+    }
+
+    private fun savedQueryJson(q: SavedQuery): JsonObject {
+        val json = Json.obj("id" to q.id, "name" to q.name, "sql" to q.sql, "createdAt" to q.createdAt)
+        q.databaseType?.let { json.addProperty("databaseType", it) }
+        q.updatedAt?.let { json.addProperty("updatedAt", it) }
+        return json
     }
 
     private fun invalid(message: String) = InspectorException(ErrorCodes.INVALID_REQUEST, message)

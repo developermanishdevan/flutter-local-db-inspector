@@ -1,4 +1,4 @@
-import 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
+import 'package:flutter_db_inspector/flutter_db_inspector.dart';
 import 'package:get_storage/get_storage.dart';
 
 /// [KeyValueStore] binding for a [GetStorage] container.

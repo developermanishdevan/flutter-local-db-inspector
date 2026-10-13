@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 /**
  * Constants of the Flutter DB Inspector protocol (v1).
  *
- * Mirrors `flutter_db_inspector_protocol` (Dart) and `src/protocol/types.ts`
+ * Mirrors `package:flutter_db_inspector/protocol.dart` (Dart) and `src/protocol/types.ts`
  * of the VS Code extension. Unknown enum values, capability names, error
  * codes and extra fields from newer runtimes are tolerated, never rejected.
  */

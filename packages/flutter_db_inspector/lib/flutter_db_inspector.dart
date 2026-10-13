@@ -1,42 +1,35 @@
-/// Flutter DB Inspector — inspect your app's local databases from DevTools,
+/// Flutter DB Inspector: inspect your app's local databases from DevTools,
 /// VS Code and Android Studio while it runs.
 ///
-/// One import gives you the runtime and every connector:
+/// This library is the runtime ([DbInspector], the adapter contract and the
+/// generic document and key-value engines) plus the wire protocol. Add one
+/// connector package per storage the app uses:
 ///
 /// ```dart
 /// import 'package:flutter_db_inspector/flutter_db_inspector.dart';
+/// import 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
 ///
 /// DbInspector.initialize(
 ///   enabled: kDebugMode,
 ///   databases: [
 ///     InspectorDatabase(name: 'app_database', adapter: SqliteAdapter(db)),
-///     InspectorDatabase(name: 'cache', adapter: HiveAdapter([box])),
 ///   ],
 /// );
 /// ```
 ///
-/// | Storage | Connector |
-/// |---|---|
-/// | sqflite / sqflite_common_ffi / Floor | `SqliteAdapter(db)` |
-/// | Drift | `DriftAdapter(db)` |
-/// | Isar (`isar_community`) | `IsarAdapter(isar, schemas)` |
-/// | ObjectBox | `ObjectBoxAdapter(store, collections)` |
-/// | Realm | `RealmAdapter(realm)` |
-/// | Sembast | `SembastAdapter(db)` |
-/// | Hive (`hive_ce`) | `HiveAdapter(boxes)` |
-/// | SharedPreferences | `SharedPreferencesAdapter(prefs)` |
-/// | flutter_secure_storage | `SecureStorageAdapter(storage)` |
-/// | GetStorage | `GetStorageAdapter(containers)` |
+/// Tools that only speak the protocol can import
+/// `package:flutter_db_inspector/protocol.dart` instead.
 library;
 
-export 'package:flutter_db_inspector_core/flutter_db_inspector_core.dart';
-export 'package:flutter_db_inspector_drift/flutter_db_inspector_drift.dart';
-export 'package:flutter_db_inspector_get_storage/flutter_db_inspector_get_storage.dart';
-export 'package:flutter_db_inspector_hive/flutter_db_inspector_hive.dart';
-export 'package:flutter_db_inspector_isar/flutter_db_inspector_isar.dart';
-export 'package:flutter_db_inspector_objectbox/flutter_db_inspector_objectbox.dart';
-export 'package:flutter_db_inspector_realm/flutter_db_inspector_realm.dart';
-export 'package:flutter_db_inspector_secure_storage/flutter_db_inspector_secure_storage.dart';
-export 'package:flutter_db_inspector_sembast/flutter_db_inspector_sembast.dart';
-export 'package:flutter_db_inspector_shared_preferences/flutter_db_inspector_shared_preferences.dart';
-export 'package:flutter_db_inspector_sqlite/flutter_db_inspector_sqlite.dart';
+export 'protocol.dart';
+
+export 'src/adapter.dart';
+export 'src/common/in_memory_query.dart';
+export 'src/config.dart';
+export 'src/db_inspector.dart';
+export 'src/document/document_adapter.dart';
+export 'src/document/document_collection.dart';
+export 'src/key_value/key_value_adapter.dart';
+export 'src/key_value/key_value_store.dart';
+export 'src/registry.dart';
+export 'src/router.dart';
