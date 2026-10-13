@@ -234,6 +234,8 @@ export class PanelManager implements vscode.Disposable {
         if (entity) this.openTable(db, entity.name, entity.kind);
         return {};
       }
+      case 'listTables':
+        return (await this.client.schema(db.id)).entities;
       case 'saveQuery': {
         const name = await vscode.window.showInputBox({
           title: 'Save Query',
